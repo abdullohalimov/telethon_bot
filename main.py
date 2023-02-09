@@ -1,16 +1,21 @@
+import asyncio
+from datetime import datetime
 import os
-import secrets
-import logging
-from peewee import *
+from traceback import print_exc
 from types import NoneType
-from database import Person
 from dotenv import load_dotenv
 from telethon import TelegramClient, events
+import logging
+from peewee import *
+from database import Person
+import secrets
+from telethon import functions, types    
 
 logging.basicConfig(format='[%(levelname) 5s/%(asctime)s] %(name)s: %(message)s',
                     level=logging.INFO)
 
 load_dotenv()
+
 API_ID = os.getenv("API_ID")
 API_HASH = os.getenv("API_HASH")
 
@@ -71,34 +76,47 @@ async def messages_hand(event):
         if event.message.text:
             if event.message.media:
                 filename=f'{secrets.token_hex(8)}.jpg'
-                await event.message.download_media(file=f"media/{filename}")          
-                Person.get_or_create(
-                user_id=user.id, 
-                user_name=fullname, 
-                user_link=link, 
-                group_id=group.id, 
-                group_name=group.title, 
-                group_link=group_link, 
-                message_text=event.message.text, 
-                media_files=filename
-                )
+                await event.message.download_media(file=f"media/{filename}")   
+                try:
+                    ex_db_record: Person = Person.get(Person.message_text == event.message.text)       
+                    ex_db_record.datatime = datetime.now()
+                    ex_db_record.save()
+                except:
+                    Person.get_or_create(
+                    user_id=user.id, 
+                    user_name=fullname, 
+                    user_link=link, 
+                    group_id=group.id, 
+                    group_name=group.title, 
+                    group_link=group_link, 
+                    message_text=event.message.text, 
+                    media_files=filename,
+                    datatime=datetime.now()
+                    )
 
             else:
-                Person.get_or_create(
-                user_id=user.id, 
-                user_name=fullname, 
-                user_link=link, 
-                group_id=group.id, 
-                group_name=group.title, 
-                group_link=group_link, 
-                message_text=event.message.text, 
-                media_files='none'
-                )
+                try:
+                    ex_db_record: Person = Person.get(Person.message_text == event.message.text)       
+                    ex_db_record.datatime = datetime.now()
+                    ex_db_record.save()
+                except:
+                    Person.get_or_create(
+                    user_id=user.id, 
+                    user_name=fullname, 
+                    user_link=link, 
+                    group_id=group.id, 
+                    group_name=group.title, 
+                    group_link=group_link, 
+                    message_text=event.message.text, 
+                    media_files='none',
+                    datatime=datetime.now()
+                    )
             
             if not channel:
                 await client.send_message(-1001308294192, f"Сообщение от пользователя {link}, группы {group_link}\n{event.message.text}", file=event.message.media, parse_mode="Html")
             else:
                 await client.send_message(-1001308294192, f"Сообщение от канала {group_link}\n{event.message.text}", file=event.message.media,parse_mode="Html")
+              
 
     raise events.StopPropagation
 
