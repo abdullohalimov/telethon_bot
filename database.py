@@ -11,9 +11,10 @@ class Person(Model):
     group_link = CharField(null=True)
     message_text = TextField(null=True)
     media_files = TextField(null=True)
+    datatime = TextField(null=True)
 
     class Meta:
         database = db # This model uses the "agregat.db" database.
 
-Person.create_table()
+Person.create_table(Person)
 
