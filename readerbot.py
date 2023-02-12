@@ -2,16 +2,18 @@ from aiogram import Bot, Dispatcher, executor
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery
-
+import os
+from dotenv import load_dotenv
 from aiogram_dialog import Window, Dialog, DialogRegistry, DialogManager, StartMode
 from aiogram_dialog.widgets.kbd import Button, ScrollingGroup
 from aiogram_dialog.widgets.text import Const, Format
 
 from database import Person
 
+load_dotenv()
 
 storage = MemoryStorage()
-bot = Bot(token='5536548536:AAG7vRT6uYkzfcPjPItzQzbjf8PV6r-uf2k')
+bot = Bot(token=os.getenv("TOKEN"))
 dp = Dispatcher(bot, storage=storage)
 registry = DialogRegistry(dp)
 
