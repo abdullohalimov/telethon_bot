@@ -2,3 +2,4 @@
 .env
 agregat.session
 media
+__pycache__

@@ -47,3 +47,8 @@
 # """
 # print(count_words(text=txt))
 
+from database import Person
+
+select = Person.select()
+
+print(select[207 -1].message_text)
