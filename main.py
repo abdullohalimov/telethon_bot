@@ -1,15 +1,41 @@
-import asyncio
-from datetime import datetime
-import os
-from traceback import print_exc
-from types import NoneType
-from dotenv import load_dotenv
+import regex
 from telethon import TelegramClient, events
-import logging
-from peewee import *
+from dotenv import load_dotenv
+from datetime import datetime
 from database import Person
+from types import NoneType
+from peewee import *
+import os
+import logging
 import secrets
-from telethon import functions, types    
+import requests
+import telethon.utils as utls
+from lingua import Language, LanguageDetectorBuilder
+
+
+# Import json library to parse JSON data
+import json
+from test1 import get_categories
+# Define the URL of the API endpoint
+url = "https://aztester.uz/api-announcement/v1/category/tree"
+
+def detect_cyrillic_language(text):
+    # languages = [Language.TURKISH, Language.ENGLISH]
+    detector = LanguageDetectorBuilder.from_all_languages_with_cyrillic_script().build()
+    return detector.detect_language_of(text)
+
+
+def get_language(text):
+    # languages = [Language.TURKISH, Language.ENGLISH]
+    detector = LanguageDetectorBuilder.from_all_languages().build()
+    if detector.detect_language_of(text) == Language.RUSSIAN:
+        return True
+    else:
+        return False
+# Send a GET request to the URL and store the response object
+response_uz = requests.get(url, headers={'language': "uz_latn"})
+response_cyrl = requests.get(url, headers={'language': "uz_cyrl"})
+response_ru = requests.get(url, headers={'language': "ru"})
 
 logging.basicConfig(format='[%(levelname) 5s/%(asctime)s] %(name)s: %(message)s',
                     level=logging.INFO)
@@ -29,9 +55,12 @@ client = TelegramClient('agregat', API_ID, API_HASH)
 
 
 
+
 @client.on(events.NewMessage(incoming=True, chats=-1001308294192, blacklist_chats=True))
 async def messages_hand(event):
     if event.is_private:
+        # print(event.message.id)
+        print()
         pass
         # user = await client.get_entity(event.peer_id)
         # first = user.first_name
@@ -43,6 +72,7 @@ async def messages_hand(event):
         # print('it\'s  a user')
         raise events.StopPropagation
     else:
+        # Xabar yuborilgan guruh va foydalanuvchini yoki kanalni aniqlash
         group = await event.message.get_chat()
         try:
             user = await event.message.get_sender()
@@ -54,47 +84,41 @@ async def messages_hand(event):
             try:
                 if type(user.phone) == NoneType:
                     raise Exception
-                link = f"<a href=https://t.me/+{user.phone}>{fullname}</a>"
+                link = user.phone
+                link2 = f"<a href=https://t.me/+{user.phone}>{fullname}</a>"
             except:
                 try:
                     if type(user.username) == NoneType:
                         raise Exception
 
-                    link = f"<a href=https://t.me/{user.username}>{fullname}</a>"
+                    link = user.username
+                    link2 = f"<a href=https://t.me/{user.username}>{fullname}</a>"
                 except:
-                    link = fullname
+                    link = 'none'
+                    link2 = fullname
         except:
             fullname = user.title
-            link = f'<a href=https://t.me/{user.username}>{group.title}</a>'
+            link = user.username
             channel = True
-        
         group_link = f'{group.title}'
         try:
-            group_link = f'<a href=https://t.me/{group.username}>{group.title}</a>'
+            group_link = group.username
+            group_link2 = f'<a href=https://t.me/{group.username}>{group.title}</a>'
         except:
             pass
+        # Xabarni filtrlash boshlandi
         if event.message.text:
-            if event.message.media:
-                filename=f'{secrets.token_hex(8)}.jpg'
-                await event.message.download_media(file=f"media/{filename}")   
-                try:
-                    ex_db_record: Person = Person.get(Person.message_text == event.message.text)       
-                    ex_db_record.datatime = datetime.now()
-                    ex_db_record.save()
-                except:
-                    Person.get_or_create(
-                    user_id=user.id, 
-                    user_name=fullname, 
-                    user_link=link, 
-                    group_id=group.id, 
-                    group_name=group.title, 
-                    group_link=group_link, 
-                    message_text=event.message.text, 
-                    media_files=filename,
-                    datatime=datetime.now()
-                    )
-
+            if get_language(event.message.text):
+                ctgrs = get_categories(response_ru, event.message.text)
             else:
+                if detect_cyrillic_language(event.message.text):
+                    print("Текст на кириллице")
+                    ctgrs = get_categories(response_cyrl, event.message.text)
+
+                else:
+                    print("Matn lotinchada")
+                    ctgrs = get_categories(response_uz, event.message.text)
+            if ctgrs != "":
                 try:
                     ex_db_record: Person = Person.get(Person.message_text == event.message.text)       
                     ex_db_record.datatime = datetime.now()
@@ -107,20 +131,46 @@ async def messages_hand(event):
                     group_id=group.id, 
                     group_name=group.title, 
                     group_link=group_link, 
+                    message_id=event.message.id, 
                     message_text=event.message.text, 
+                    category=ctgrs, 
                     media_files='none',
                     datatime=datetime.now()
                     )
-            
-            if not channel:
-                await client.send_message(-1001308294192, f"Сообщение от пользователя {link}, группы {group_link}\n{event.message.text}", file=event.message.media, parse_mode="Html")
+                
+                if not channel:
+                    await client.send_message(-1001308294192, f"User: {link2}\nGroup: {group_link2}\nCatalogs: {ctgrs}\nMessage: {event.message.text}\nmessage_link: https://t.me/{group_link}/{event.message.id}", file=event.message.media, parse_mode="Html", link_preview=False)
+                else:
+                    await client.send_message(-1001308294192, f"Сообщение от канала {group_link2}\nCatalogs: {ctgrs}\nMessage: {event.message.text}\nmessage_link: https://t.me/{group_link}/{event.message.id}", file=event.message.media,parse_mode="Html", link_preview=False)
             else:
-                await client.send_message(-1001308294192, f"Сообщение от канала {group_link}\n{event.message.text}", file=event.message.media,parse_mode="Html")
-              
+                if not channel:
+                    await client.send_message(-1001308294192, f"KATEGORIYALARGA MOS KELMADI\nUser {link2}\nGroup {group_link2}\nmessage: {event.message.text}\nmessage_link: https://t.me/{group_link}/{event.message.id}", file=event.message.media, parse_mode="Html", link_preview=False)
+                else:
+                    await client.send_message(-1001308294192, f"KATEGORIYALARGA MOS KELMADI\nСообщение от канала {group_link2}\nMessage:{event.message.text}\nmessage_link: https://t.me/{group_link}/{event.message.id}", file=event.message.media,parse_mode="Html", link_preview=False)
+            
+            if event.message.media:
+                    filename=f'{secrets.token_hex(8)}{event.message.file.ext}'
+                    await event.message.download_media(file=f"media/{filename}")   
+                    try:
+                        ex_db_record: Person = Person.get(Person.message_text == event.message.text)       
+                        ex_db_record.datatime = datetime.now()
+                        ex_db_record.save()
+                    except:
+                        Person.get_or_create(
+                        user_id=user.id, 
+                        user_name=fullname, 
+                        user_link=link, 
+                        group_id=group.id, 
+                        group_name=group.title, 
+                        group_link=group_link, 
+                        message_id=event.message.id, 
+                        message_text=event.message.text, 
+                        category=ctgrs, 
+                        media_files=filename,
+                        datatime=datetime.now()
+                        )
 
     raise events.StopPropagation
-
-
 
     
 

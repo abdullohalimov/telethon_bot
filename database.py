@@ -9,7 +9,9 @@ class Person(Model):
     group_id = CharField(null=True)
     group_name = CharField(null=True)
     group_link = CharField(null=True)
+    message_id = TextField(null=True)
     message_text = TextField(null=True)
+    category = TextField(null=True)
     media_files = TextField(null=True)
     datatime = TextField(null=True)
 

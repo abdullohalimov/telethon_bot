@@ -1,5 +1,6 @@
 .venv
 .env
-agregat.session
+__pycache__/
 media
-__pycache__
+agregat.session
+agregat.session-journal
