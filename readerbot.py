@@ -5,7 +5,7 @@ from aiogram.types import Message, CallbackQuery
 import os
 from dotenv import load_dotenv
 from aiogram_dialog import Window, Dialog, DialogRegistry, DialogManager, StartMode
-from aiogram_dialog.widgets.kbd import Button, ScrollingGroup
+from aiogram_dialog.widgets.kbd import Button, ScrollingGroup, Back
 from aiogram_dialog.widgets.text import Const, Format
 
 from agregat_bot.tgbot.models.database import Person
@@ -13,7 +13,7 @@ from agregat_bot.tgbot.models.database import Person
 load_dotenv()
 
 storage = MemoryStorage()
-bot = Bot(token=os.getenv("TOKEN"))
+bot = Bot(token=os.getenv("BOT_TOKEN"))
 dp = Dispatcher(bot, storage=storage)
 registry = DialogRegistry(dp)
 
@@ -48,20 +48,22 @@ async def button_pressed(c: CallbackQuery, button: Button, manager: DialogManage
     print(button)
     id = (int(button.widget_id)+1)*5
     print(id)
-    result = Person.select()
+    result: Person = Person.select()
     
     txt = ''
     for record in result[id-5:id]:
         txt += f"{record.id}\n"
-        txt += f"{record.user_id}\n"
+        # txt += f"{record.user_id}\n"
         txt += f"{record.user_name}\n"
-        txt += f"{record.user_link}\n"
-        txt += f"{record.group_id}\n"
+        # txt += f"{record.user_link}\n"
+        # txt += f"{record.group_id}\n"
         txt += f"{record.group_name}\n"
-        txt += f"{record.group_link}\n"
-        txt += f"{record.message_text}\n"
-        txt += f"{record.media_files}\n"
-        txt += f"{record.datatime}\n\n"
+        txt += f"\n"
+        txt += f"Сообщение: t.me/{record.group_link}/{record.message_id}\n"
+        txt += f"Текст: {record.message_text}\n"
+        txt += f"Категории: {record.category}\n"
+        # txt += f"{record.media_files}\n"
+        txt += f"Время: {record.datatime}\n\n"
     manager.current_context().dialog_data["dbpage"] = txt
     
 
@@ -81,6 +83,9 @@ def test_buttons_creator():
 
 async def go_next(c: CallbackQuery, button: Button, manager: DialogManager):
     await manager.dialog().next()
+async def go_back(c: CallbackQuery, button: Button, manager: DialogManager):
+    await c.message.edit_text("Вы вернулись в главное меню, чтобы снова вернутся к просмотру базы напишите /start", reply_markup=None)
+    await manager.done()
 
 dialog = Dialog(
     Window(
@@ -92,13 +97,15 @@ dialog = Dialog(
 
     Window(
         Format("Данные из базы:", when="dontshow"),
-        Format("{data}123", when="page"),
+        Format("{data}", when="page"),
         ScrollingGroup(
             *test_buttons_creator(),
             id="numbers",
             width=3,
             height=3,),
+        Button(text=Const("Назад"), on_click=go_back, id='nothin'),
         getter=get_data_from_base,
+        disable_web_page_preview=True,
         state=MySG.second
 
 

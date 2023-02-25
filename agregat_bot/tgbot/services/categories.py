@@ -19,7 +19,7 @@ def get_categories(response, txtmsg, coef: float):
             for j in value:
                 str1 = txtmsg.lower().split()
                 str2 = list(j.values())[0].lower()
-
+                
                 a = difflib.get_close_matches(str2, str1, 3, coef) 
                 for i in a:
                     categories2.add(f"{key}:{list(j.keys())[0]}")  

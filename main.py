@@ -161,7 +161,8 @@ async def messages_hand(event):
                     else:
                         print("Matn lotinchada")
                         ctgrs = get_categories(response_uz, event.message.text)
-                data = f"""'user_id' :^ {user.id}, \n'user_name' :^ {fullname}, \n'user_link' :^ {link}, \n'group_id' :^ {group.id}, \n'group_name' :^ {group.title}, \n'group_link' :^ {group_link}, \n'message_id' :^ {event.message.id}, \n'message_text' :^ {event.message.text}"""
+                # data = f"""'user_id' :^ {user.id}, \n'user_name' :^ {fullname}, \n'user_link' :^ {link}, \n'group_id' :^ {group.id}, \n'group_name' :^ {group.title}, \n'group_link' :^ {group_link}, \n'message_id' :^ {event.message.id}, \n'message_text' :^ {event.message.text}"""
+                data = f"""{user.id}(delimeter){fullname}(delimeter){link}(delimeter){group.id}(delimeter){group.title}(delimeter){group_link}(delimeter){event.message.id}(delimeter){event.message.text}"""
                 if ctgrs != "":
                     # try:
                     #     ex_db_record: Person = Person.get(Person.message_text == event.message.text)       
@@ -186,7 +187,6 @@ async def messages_hand(event):
                         await client.send_message(-1001308294192, f"Statusi: Bazaga #joylandi\nUser: {link2}\nGroup: {group_link2}\nCatalogs: {ctgrs}\nMessage: {event.message.text}\nmessage_link: https://t.me/{group_link}/{event.message.id}", file=event.message.media, parse_mode="Html", link_preview=False)
                     else:
                         await client.send_message(-1001308294192, f"Statusi: Bazaga #joylandi\nChannel: {group_link2}\nCatalogs: {ctgrs}\nMessage: {event.message.text}\nmessage_link: https://t.me/{group_link}/{event.message.id}", file=event.message.media,parse_mode="Html", link_preview=False)
-                    await client.send_message(5536548536, data, file=event.message.media, parse_mode="Html", link_preview=False)
                     
                     
                     # await client.send_message(5536548536, f"{user.id}(delimeter){fullname}(delimeter){link}(delimeter){group.id}(delimeter){group.title}(delimeter){group_link}(delimeter){event.message.id}(delimeter){event.message.text}(delimeter){ctgrs}(delimeter){'none'}(delimeter){datetime.now()}(delimeter)#joylanmadi", file=event.message.media, parse_mode="Html", link_preview=False)
@@ -198,13 +198,14 @@ async def messages_hand(event):
                         await client.send_message(-1001308294192, f"Statusi: Bazaga #joylanmadi\nUser {link2}\nGroup {group_link2}\nmessage: {event.message.text}\nmessage_link: https://t.me/{group_link}/{event.message.id}", file=event.message.media, parse_mode="Html", link_preview=False)
                     else:
                         await client.send_message(-1001308294192, f"Statusi: Bazaga #joylanmadi\nСообщение от канала {group_link2}\nMessage:{event.message.text}\nmessage_link: https://t.me/{group_link}/{event.message.id}", file=event.message.media,parse_mode="Html", link_preview=False)
-                    await client.send_message(5536548536, str(data))
+                    # await client.send_message(5976776249, str(data))
                     # await event.message.forward_to(5536548536)
+                await client.send_message("@Testfordifferentlibraries_bot", data, file=event.message.media, parse_mode="Html", link_preview=False)
                 
-                if event.message.media:
-                    filename=f'{secrets.token_hex(8)}{event.message.file.ext}'
-                    await event.message.download_media(file=f"media/{filename}") 
-                    await client.send_message(5536548536, str(data), file=event.message.media)
+                # if event.message.media:
+                #     filename=f'{secrets.token_hex(8)}{event.message.file.ext}'
+                #     await event.message.download_media(file=f"media/{filename}") 
+                    # await client.send_message(5536548536, str(data), file=event.message.media)
                     
                     # try:
                     #     ex_db_record: Person = Person.get(Person.message_text == event.message.text)       
