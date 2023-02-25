@@ -47,7 +47,7 @@
 # """
 # print(count_words(text=txt))
 
-from database import Person
+from agregat_bot.tgbot.models.database import Person
 
 select = Person.select()
 

@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from telethon import TelegramClient, events
 import logging
 from peewee import *
-from database import Person
+from agregat_bot.tgbot.models.database import Person
 import secrets
 from telethon import functions, types    
 

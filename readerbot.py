@@ -8,7 +8,7 @@ from aiogram_dialog import Window, Dialog, DialogRegistry, DialogManager, StartM
 from aiogram_dialog.widgets.kbd import Button, ScrollingGroup
 from aiogram_dialog.widgets.text import Const, Format
 
-from database import Person
+from agregat_bot.tgbot.models.database import Person
 
 load_dotenv()
 
@@ -106,6 +106,7 @@ dialog = Dialog(
 )
 registry.register(dialog)
 
+@dp.message_handler
 
 @dp.message_handler(commands=["start"])
 async def start(m: Message, dialog_manager: DialogManager):
