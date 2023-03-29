@@ -34,8 +34,9 @@ def get_categories(response, txtmsg, coef: float):
                 # print(key, value)
                 a = difflib.get_close_matches(str2, str1, 3, coef) 
                 for i in a:
-                    categories2.add(f"{key}||{list(j.keys())[0]}||{parents[key]}||{str2}||{set(a)}")  
-        return [categories2, parents]
+                    # categories2.add(f"{key}||{list(j.keys())[0]}||{parents[key]}||{str2}||{set(a)}")  
+                    categories2.add(f'{list(j.keys())[0]}')
+        return categories2
     else:
         # Handle the error if the response status code is not 200 (OK)
         print("Error: ", response.status_code)

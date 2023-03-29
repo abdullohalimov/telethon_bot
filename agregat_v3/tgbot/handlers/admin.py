@@ -36,6 +36,8 @@ def remove_html_tags(text):
 
 
 def caption_text(got_data, status, status2, categories='none', media_files='none', ):
+    categories_to_add = 'none' if categories == 'none' else ','.join(categories)
+    
     try:
         ex_db_record: Person = Person.get(
             Person.message_text == got_data['message_text'])
@@ -47,7 +49,7 @@ def caption_text(got_data, status, status2, categories='none', media_files='none
         ex_db_record.group_link = got_data['group_link']
         ex_db_record.message_id = got_data['message_id']
         ex_db_record.message_text = got_data['message_text']
-        ex_db_record.category = f"{categories[0]}"
+        ex_db_record.category = categories_to_add
         ex_db_record.media_files = media_files
         ex_db_record.datatime = datetime.now()
         ex_db_record.status = status2
@@ -62,7 +64,7 @@ def caption_text(got_data, status, status2, categories='none', media_files='none
             group_link=got_data['group_link'],
             message_id=got_data['message_id'],
             message_text=got_data['message_text'],
-            category=f"{categories[0]}",
+            category=categories_to_add,
             media_files=media_files,
             datatime=datetime.now(),
             status=status2,
@@ -72,8 +74,9 @@ def caption_text(got_data, status, status2, categories='none', media_files='none
 ⚡️ Statusi:  #{status}
 👤 User: {html.link(got_data['user_name'], f"https://t.me/{got_data['user_link']}")} 
 🔹 Group: {html.link(got_data['group_name'], f"https://t.me/{got_data['group_link']}")} ID: {html.bold(got_data['group_id'])}
+👉 {html.link("Message Link", f"https://t.me/{got_data['group_link']}/{got_data['message_id']}")} ID: <b>{got_data['message_id']}</b> 
 💬 Message: {remove_html_tags(got_data['message_text'])}
-👉 {html.link("Message Link", f"https://t.me/{got_data['group_link']}/{got_data['message_id']}")} ID: {html.bold(got_data['message_id'])} '''
+📝 Category: {categories_to_add}'''
     return txt
 
 
@@ -105,17 +108,13 @@ async def new_announcement(message: Message, bot: Bot, album: List[Message] = li
             if caption_kwargs['caption'] != None:
                 caption = caption_kwargs['caption']
             if element.photo:
-                input_media = InputMediaPhoto(
-                    media=element.photo[-1].file_id)
+                input_media = element.photo[-1].file_id
             elif element.video:
-                input_media = InputMediaVideo(
-                    media=element.video.file_id)
+                input_media = element.video.file_id
             elif element.document:
-                input_media = InputMediaDocument(
-                    media=element.document.file_id)
+                input_media = element.document.file_id
             elif element.audio:
-                input_media = InputMediaAudio(
-                    media=element.audio.file_id)
+                input_media = element.audio.file_id
             else:
                 return message.answer("This media type isn't supported!")
 
@@ -125,17 +124,17 @@ async def new_announcement(message: Message, bot: Bot, album: List[Message] = li
         except:
             print(caption)
         if len(got_data['message_text'].split()) > 3:
-            message2 = await bot.send_media_group(chat_id=-1001527539668, media=group_elements)
+            # message2 = await bot.send_media_group(chat_id=-1001527539668, media=group_elements)
             categories = get_language(
                 got_data['message_text'], response_ru, response_cyrl, response_uz)
-            if categories[0]:
+            if categories:
                 txt = caption_text(
                     got_data=got_data, status="joylandi ✅", status2='1', media_files=group_elements, categories=categories)
-                await bot.send_message(chat_id=-1001527539668, text=txt, reply_markup=categories_inl(categories), disable_web_page_preview=False, reply_to_message_id=message2[0].message_id)
+                await bot.send_message(chat_id=-1001527539668, text=txt, reply_markup=categories_inl(categories), disable_web_page_preview=False)
             else:
                 txt = caption_text(got_data=got_data, media_files=group_elements,
                                     status="joylanmadi ❌", status2='0')
-                await bot.send_message(chat_id=-1001527539668, text=txt, reply_markup=categories_inl(categories), disable_web_page_preview=False, reply_to_message_id=message2[0].message_id)
+                await bot.send_message(chat_id=-1001527539668, text=txt, reply_markup=categories_inl(categories), disable_web_page_preview=False)
         pass
     else:
         if message.photo:
@@ -146,7 +145,7 @@ async def new_announcement(message: Message, bot: Bot, album: List[Message] = li
             if len(got_data['message_text'].split()) > 3:
                 categories = get_language(
                     got_data['message_text'], response_ru, response_cyrl, response_uz)
-                if categories[0]:
+                if categories:
                     txt = caption_text(got_data=got_data, status="joylandi ✅", status2='1',
                                        categories=categories, media_files=message.photo[0].file_id)
                     await bot.send_photo(chat_id=-1001527539668, caption=txt, reply_markup=categories_inl(categories), photo=message.photo[0].file_id)
@@ -163,7 +162,7 @@ async def new_announcement(message: Message, bot: Bot, album: List[Message] = li
             if len(got_data['message_text'].split()) > 3:
                 categories = get_language(
                     got_data['message_text'], response_ru, response_cyrl, response_uz)
-                if categories[0]:
+                if categories:
                     txt = caption_text(got_data=got_data, status="joylandi ✅", status2='1',
                                        categories=categories, media_files=message.video.file_id)
                     await bot.send_video(chat_id=-1001527539668, caption=txt, reply_markup=categories_inl(categories), video=message.video.file_id)
@@ -180,7 +179,7 @@ async def new_announcement(message: Message, bot: Bot, album: List[Message] = li
             if len(got_data['message_text'].split()) > 3:
                 categories = get_language(
                     got_data['message_text'], response_ru, response_cyrl, response_uz)
-                if categories[0]:
+                if categories:
                     txt = caption_text(
                         got_data=got_data, status="joylandi ✅", status2='1', categories=categories)
                     await bot.send_message(-1001527539668, txt, reply_markup=categories_inl(categories), disable_web_page_preview=True)

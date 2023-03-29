@@ -1,6 +1,6 @@
 from peewee import *
 
-db = SqliteDatabase(r'C:\Users\Agregat\Desktop\Projects\telethon_bot\agregat_v3\tgbot\models\agregat3.db')
+db = SqliteDatabase(r'tgbot\models\agregat3.db')
 
 class Person(Model):
     user_id = CharField(null=True)
