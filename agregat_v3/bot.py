@@ -5,10 +5,10 @@ from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
 
 from tgbot.config import load_config
-from tgbot.handlers.admin import admin_router, custom_couter
+from tgbot.handlers.admin import admin_router
 from tgbot.handlers.echo import echo_router
 from tgbot.handlers.user import user_router
-from tgbot.middlewares.config import ConfigMiddleware
+from tgbot.handlers.callback import custom_couter
 from tgbot.middlewares.album import MediaGroupMiddleware 
 from tgbot.services import broadcaster
 
@@ -40,10 +40,10 @@ async def main():
     dp = Dispatcher(storage=storage)
 
     for router in [
+        custom_couter,
         admin_router,
         user_router,
         echo_router,
-        custom_couter
     ]:
         dp.include_router(router)
 

@@ -1,8 +1,7 @@
 from typing import List
-from aiogram import Router, Bot, F, BaseMiddleware
+from aiogram import Router, Bot
 from aiogram.filters import CommandStart
-from aiogram.fsm.state import State
-from aiogram.types import Message, CallbackQuery, InputMediaPhoto
+from aiogram.types import Message, InputMediaPhoto
 import requests
 import re
 from tgbot.keyboards.inline import categories_inl
@@ -27,7 +26,6 @@ response_cyrl = requests.get(url, headers={'language': "uz_cyrl"})
 response_ru = requests.get(url, headers={'language': "ru"})
 
 admin_router = Router()
-custom_couter = Router()
 # admin_router.message.filter(AdminFilter())
 # admin_router.message.middleware(MediaGroupMiddleware)
 
@@ -92,10 +90,6 @@ def str_to_dict(string):
     dictionary['message_text'] = data[7]
     return dictionary
 
-# @admin_router.message(F.message_group_id)
-# async def handle_albums(message: Message, album: List[Message]):
-#     
-
 
 @admin_router.message()
 async def new_announcement(message: Message, bot: Bot, album: List[Message] = list()):
@@ -137,11 +131,11 @@ async def new_announcement(message: Message, bot: Bot, album: List[Message] = li
             if categories[0]:
                 txt = caption_text(
                     got_data=got_data, status="joylandi ✅", status2='1', media_files=group_elements, categories=categories)
-                await bot.send_message(chat_id=-1001527539668, text=txt, reply_markup=categories_inl(categories), disable_web_page_preview=True, reply_to_message_id=message2[0].message_id)
+                await bot.send_message(chat_id=-1001527539668, text=txt, reply_markup=categories_inl(categories), disable_web_page_preview=False, reply_to_message_id=message2[0].message_id)
             else:
                 txt = caption_text(got_data=got_data, media_files=group_elements,
                                     status="joylanmadi ❌", status2='0')
-                await bot.send_message(chat_id=-1001527539668, text=txt, reply_markup=categories_inl(categories), disable_web_page_preview=True, reply_to_message_id=message2[0].message_id)
+                await bot.send_message(chat_id=-1001527539668, text=txt, reply_markup=categories_inl(categories), disable_web_page_preview=False, reply_to_message_id=message2[0].message_id)
         pass
     else:
         if message.photo:
@@ -201,14 +195,5 @@ async def admin_start(message: Message):
     await message.reply("Привет, Админ!")
 
 
-@custom_couter.callback_query()
-async def callback_handler(callback: CallbackQuery):
-    if callback.message.entities != None:
-        print('text')
-        group_id = callback.message.entities[3].extract_from(callback.message.text)
-        message_id = callback.message.entities[-1].extract_from(callback.message.text)    
-    else:
-        print('caption')
-        group_id = callback.message.entities[3].extract_from(callback.message.caption)
-        message_id = callback.message.entities[-1].extract_from(callback.message.caption)
+
     

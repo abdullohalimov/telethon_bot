@@ -13,13 +13,6 @@ def categories_inl(categories):
     keyb.row(InlineKeyboardButton(text="Категории", callback_data="categories"))
     keyb.add(InlineKeyboardButton(text="Удалить", callback_data="delete"))
     
-    
     return keyb.as_markup()
 
 
-# Функция возвращает Inline Keyboard с статическими кнопками
-def langugage_keyboard():
-    keyb = InlineKeyboardBuilder()
-    keyb.add(InlineKeyboardButton(text="Русский", callback_data="rus"))
-    keyb.add(InlineKeyboardButton(text="O'zbekcha", callback_data="uzb"))
-    return keyb.as_markup()
