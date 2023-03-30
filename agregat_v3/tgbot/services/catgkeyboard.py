@@ -11,20 +11,20 @@ def get_catalog(catalog = 0, lan = 'uz_latn', c = ''):
 
     if c == '':
         if catalog == 0:
-            url = "https://aztester.uz/api-announcement/v1/category/tree"
+            url = "http://62.209.129.42/category/"
             response = requests.request("GET", url, headers=headers, data=payload)
             categoires = dict()
-            for i in response.json()['data']:
+            for i in response.json()['categories']:
                 print(i['name'], i['id'])
                 categoires[i['id']] = i['name']
 
             # return response.json()['data']
             return categoires
         else:
-            url = f'https://aztester.uz/api-announcement/v1/category?category_id={catalog}'
+            url = f'http://62.209.129.42/category/{catalog}'
             response = requests.request("GET", url, headers=headers, data=payload)
             categoires = dict()
-            for i in response.json()['data'][0]['child_categories']:
+            for i in response.json()['categories']:
                 print(i['name'], i['id'])
                 categoires[i['id']] = i['name']
 

@@ -36,7 +36,7 @@ async def main():
     config = load_config(".env")
 
     storage = MemoryStorage()
-    bot = Bot(token=config.tg_bot.token, parse_mode='HTML')
+    bot = Bot(token=config.tg_bot.token, parse_mode='Markdown')
     dp = Dispatcher(storage=storage)
 
     for router in [

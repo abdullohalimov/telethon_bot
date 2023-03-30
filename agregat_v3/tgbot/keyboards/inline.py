@@ -15,15 +15,15 @@ def categories_inl(categories = None):
                 print(a)
                 a = a.split(':>:')
                 # print(splitted)
-                keyb.row(InlineKeyboardButton(text=f'❌{a[2]} -> {a[0]}❌', callback_data=CategoryData(category=a[1]).pack()))
+                keyb.row(InlineKeyboardButton(text=f'❌ {a[2]} -> {a[0]}', callback_data=CategoryData(category=a[1]).pack()))
         else:
             a = get_catalog(c = i)
             print(a)
             a = a.split(':>:')
             # print(splitted)
-            keyb.row(InlineKeyboardButton(text=f'❌{a[2]} -> {a[0]}❌', callback_data=CategoryData(category=a[1]).pack()))
-    keyb.row(InlineKeyboardButton(text="🗂Категории🗂", callback_data="categories"))
-    keyb.add(InlineKeyboardButton(text="❌Удалить❌", callback_data="delete"))
+            keyb.row(InlineKeyboardButton(text=f'❌ {a[2]} -> {a[0]}', callback_data=CategoryData(category=a[1]).pack()))
+    keyb.row(InlineKeyboardButton(text="🗂 Категории", callback_data="categories"))
+    keyb.add(InlineKeyboardButton(text="🗑 Удалить", callback_data="delete"))
     
     return keyb.as_markup()
 
@@ -39,6 +39,6 @@ def categories_keyb_inl(categories: dict):
         return keyb.as_markup()
 
 
-recover_inl = InlineKeyboardBuilder().row(InlineKeyboardButton(text="Восстановить", callback_data="recover")).as_markup()
+recover_inl = InlineKeyboardBuilder().row(InlineKeyboardButton(text="✅ Восстановить", callback_data="recover")).as_markup()
 
 

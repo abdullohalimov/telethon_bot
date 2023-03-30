@@ -18,7 +18,8 @@ from aiogram.types import (
     Message,
     TelegramObject,
 )
-from aiogram import html
+# import markdown
+from aiogram.utils import markdown
 
 url = "https://aztester.uz/api-announcement/v1/category/tree"
 response_uz = requests.get(url, headers={'language': "uz_latn"})
@@ -30,14 +31,33 @@ admin_router = Router()
 # admin_router.message.middleware(MediaGroupMiddleware)
 
 
-def remove_html_tags(text):
-    clean = re.compile('<.*?>')
-    return re.sub(clean, '', text)
+def remove_markdown(text):
+    # Remove code blocks
+    text = re.sub(r'```.*?```', '', text, flags=re.DOTALL)
+    # Remove inline code
+    text = re.sub(r'`.*?`', '', text)
+    # Remove bold and italic formatting
+    text = re.sub(r'(\*\*|__)(.*?)\1', r'\2', text)
+    text = re.sub(r'(\*|_)(.*?)\1', r'\2', text)
+    # Remove headings
+    text = re.sub(r'^\s*(#+)\s*(.*?)\s*$', r'\2', text, flags=re.MULTILINE)
+    # Remove unordered lists
+    text = re.sub(r'^\s*[-+*]\s+(.*)$', r'\1', text, flags=re.MULTILINE)
+    # Remove ordered lists
+    text = re.sub(r'^\s*\d+\.\s+(.*)$', r'\1', text, flags=re.MULTILINE)
+    # Remove blockquotes
+    text = re.sub(r'^\s*>+\s*(.*)$', r'\1', text, flags=re.MULTILINE)
+    # Remove horizontal rules
+    text = re.sub(r'^\s*[-*_]{3,}\s*$', '', text, flags=re.MULTILINE)
+    # Remove links
+    text = re.sub(r'\[([^\]]+)\]\(([^)]+)\)', r'\1', text)
+
+    return text.strip()
 
 
-def caption_text(got_data, status, status2, categories='none', media_files='none', ):
-    categories_to_add = 'none' if categories == 'none' else ','.join(categories)
-    
+def caption_text(got_data, status, status2, categories='none', media_files='none', is_album=False):
+    categories_to_add = 'none' if categories == 'none' else ','.join(
+        categories)
     try:
         ex_db_record: Person = Person.get(
             Person.message_text == got_data['message_text'])
@@ -69,13 +89,13 @@ def caption_text(got_data, status, status2, categories='none', media_files='none
             datatime=datetime.now(),
             status=status2,
         )
-
+    # userlink =f"+{got_data['user_link']}" if '998' in got_data['user_link'] else got_data['user_link']
     txt = f'''
 ⚡️ Statusi:  #{status}
-👤 User: {html.link(got_data['user_name'], f"https://t.me/{got_data['user_link']}")} 
-🔹 Group: {html.link(got_data['group_name'], f"https://t.me/{got_data['group_link']}")} ID: {html.bold(got_data['group_id'])}
-👉 {html.link("Message Link", f"https://t.me/{got_data['group_link']}/{got_data['message_id']}")} ID: <b>{got_data['message_id']}</b> 
-💬 Message: {remove_html_tags(got_data['message_text'])}
+👤 User: {markdown.link(got_data['user_name'], f"https://t.me/{got_data['user_link']}")} 
+🔹 Group: {markdown.link(got_data['group_name'], f"https://t.me/{got_data['group_link']}")} ID: {markdown.bold(got_data['group_id'])}
+👉 {markdown.link("Message Link", f"https://t.me/{got_data['group_link']}/{got_data['message_id']}")} ID: {markdown.bold(got_data['message_id'])}
+💬 Message: {remove_markdown(got_data['message_text'])}
 📝 Category: {categories_to_add}'''
     return txt
 
@@ -99,12 +119,14 @@ async def new_announcement(message: Message, bot: Bot, album: List[Message] = li
     # функция должна принятое сообщение переслать в другую группу и добавить к нему две инлайн кнопки
     # print(message)
     if message.media_group_id != None:
+        # message.caption = message.caption.replace('+998', '')
+
         """This handler will receive a complete album of any type."""
         group_elements = []
         caption = ''
         for element in album:
             caption_kwargs = {"caption": element.caption,
-                            "caption_entities": element.caption_entities}
+                              "caption_entities": element.caption_entities}
             if caption_kwargs['caption'] != None:
                 caption = caption_kwargs['caption']
             if element.photo:
@@ -129,15 +151,17 @@ async def new_announcement(message: Message, bot: Bot, album: List[Message] = li
                 got_data['message_text'], response_ru, response_cyrl, response_uz)
             if categories:
                 txt = caption_text(
-                    got_data=got_data, status="joylandi ✅", status2='1', media_files=group_elements, categories=categories)
+                    got_data=got_data, status="joylandi ✅", status2='1', media_files=group_elements, categories=categories, is_album=True)
                 await bot.send_message(chat_id=-1001527539668, text=txt, reply_markup=categories_inl(categories), disable_web_page_preview=False)
             else:
-                txt = caption_text(got_data=got_data, media_files=group_elements,
-                                    status="joylanmadi ❌", status2='0')
+                txt = caption_text(got_data=got_data, media_files=group_elements, is_album=True,
+                                   status="joylanmadi ❌", status2='0')
                 await bot.send_message(chat_id=-1001527539668, text=txt, reply_markup=categories_inl(categories), disable_web_page_preview=False)
         pass
     else:
         if message.photo:
+            # message.caption = message.caption.replace('+998', '')
+
             try:
                 got_data = str_to_dict(message.caption)
             except:
@@ -172,6 +196,8 @@ async def new_announcement(message: Message, bot: Bot, album: List[Message] = li
                     await bot.send_video(chat_id=-1001527539668, caption=txt, reply_markup=categories_inl(categories), video=message.video.file_id)
 
         else:
+            # message.text = message.text.replace('+998', '')
+
             try:
                 got_data = str_to_dict(message.text)
             except:
@@ -192,7 +218,3 @@ async def new_announcement(message: Message, bot: Bot, album: List[Message] = li
 @admin_router.message(CommandStart())
 async def admin_start(message: Message):
     await message.reply("Привет, Админ!")
-
-
-
-    
