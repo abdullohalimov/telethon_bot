@@ -55,12 +55,13 @@ async def handler(event):
     # Xabarni filtrlash boshlandi
 
     data = f"""{user.id}(delimeter){fullname}(delimeter){link}(delimeter){group.id}(delimeter){group.title}(delimeter){group_link}(delimeter){event.original_update.message.id}(delimeter){event.original_update.message.text}"""
-    await client.send_message(
-        "@Testfordifferentlibraries_bot", #output 
-        message=data, #caption
-        file=event.messages, #list of messages
-    )
-    raise events.StopPropagation
+    if not user.bot:
+        await client.send_message(
+            "@Testfordifferentlibraries_bot", #output 
+            message=data, #caption
+            file=event.messages, #list of messages
+        )
+        raise events.StopPropagation
 
 
 
@@ -102,10 +103,10 @@ async def messages_hand(event):
                 pass
             # Xabarni filtrlash boshlandi
             if event.message.text and len(event.message.text.split()) > 3:
-
-                data = f"""{user.id}(delimeter){fullname}(delimeter){link}(delimeter){group.id}(delimeter){group.title}(delimeter){group_link}(delimeter){event.message.id}(delimeter){event.message.text}"""
+                if not user.bot:
+                    data = f"""{user.id}(delimeter){fullname}(delimeter){link}(delimeter){group.id}(delimeter){group.title}(delimeter){group_link}(delimeter){event.message.id}(delimeter){event.message.text}"""
                     
-                await client.send_message("@Testfordifferentlibraries_bot", data, file=event.message.media, parse_mode="Html", link_preview=False)
+                    await client.send_message("@Testfordifferentlibraries_bot", data, file=event.message.media, parse_mode="Html", link_preview=False)
                 
 
 
