@@ -64,17 +64,17 @@ async def category_keyboard(callback: CallbackQuery, callback_data: CategoryKeyb
     msgtype, entities, group_id, message_id = id_list(callback)
     record: Person = Person.get(Person.message_id==message_id, Person.group_id==group_id)
     print(callback_data)
-    catlg = get_catalog(callback_data.cat)
-    newcategory = f"{record.category},{callback_data.cat}".replace('none,', '')
+    catlg = get_catalog(callback_data.category)
+    newcategory = f"{record.category},{callback_data.category}".replace('none,', '')
     if catlg != {}:
         await callback.message.edit_reply_markup(reply_markup=categories_keyb_inl(catlg))
     else:
-        textt = f'📝 Category: {record.category},{callback_data.cat}'.replace('none,', '')
+        textt = f'📝 Category: {record.category},{callback_data.category}'.replace('none,', '')
         if msgtype == "caption":
             await callback.message.edit_caption(caption=callback.message.caption.replace(f'📝 Category: {record.category}', textt), caption_entities=entities, reply_markup=categories_inl(newcategory.split(',')), disable_web_page_preview=True)
         else:
             await callback.message.edit_text(text=callback.message.text.replace(f'📝 Category: {record.category}', textt), entities=entities, reply_markup=categories_inl(newcategory.split(',')), disable_web_page_preview=True)
-        record.category = f"{record.category},{callback_data.cat}".replace('none,', '')
+        record.category = f"{record.category},{callback_data.category}".replace('none,', '')
         record.save()
         # await callback.message.edit_reply_markup(reply_markup=categories_inl())
     await callback.answer()
