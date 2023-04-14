@@ -31,7 +31,15 @@ admin_router = Router()
 # admin_router.message.middleware(MediaGroupMiddleware)
 
 
-def remove_markdown(text):
+def remove_markdown(text: str):
+    """Berilgan matndan markdown elementlarini kesib tashlash funksiyasi
+
+    Args:
+        text (str): Markdowndan tozalanishi kerak bo'lgan matn
+
+    Returns:
+        str: Markdowndan tozalangan matn
+    """
     # Remove code blocks
     text = re.sub(r'```.*?```', '', text, flags=re.DOTALL)
     # Remove inline code
@@ -56,6 +64,16 @@ def remove_markdown(text):
 
 
 def caption_text(got_data, status, status2, categories='none', media_files='none', is_album=False):
+    """Filtr qilingan xabarni bazaga joylash va kanalga yuborish funksiyasi. Funksiya guruxga yuborilishi kerak bolgan xabarni qaytaradi.
+
+    Args:
+        got_data (_type_): Botga kelgan xabar malumotlari
+        status (_type_): joylangan yoki joylanmaganlik statusi
+        status2 (_type_): Bazadagi statusi
+        categories (str, optional): Kategoriyalar. Default 'none'.
+        media_files (str, optional): Media fayllar. Default 'none'.
+        is_album (bool, optional): Album yoki yo'qligi. Default False.
+    """
     categories_to_add = 'none' if categories == 'none' else ','.join(
         categories)
     try:
@@ -89,7 +107,6 @@ def caption_text(got_data, status, status2, categories='none', media_files='none
             datatime=datetime.now(),
             status=status2,
         )
-    # userlink =f"+{got_data['user_link']}" if '998' in got_data['user_link'] else got_data['user_link']
     txt = f'''
 ⚡️ Statusi:  #{status}
 👤 User: {markdown.link(got_data['user_name'], f"https://t.me/{got_data['user_link']}")} 
@@ -101,6 +118,14 @@ def caption_text(got_data, status, status2, categories='none', media_files='none
 
 
 def str_to_dict(string):
+    """User-Agentdan kelgan xabarni botda foydalanish uchun tayyorlovchi funksiya
+
+    Args:
+        string (str): User-Agent xabari
+
+    Returns:
+        str: Bot ishlashi uchun tayyor xabar
+    """
     dictionary = {}
     data = string.split('(delimeter)')
     dictionary['user_id'] = data[0]
@@ -116,12 +141,8 @@ def str_to_dict(string):
 
 @admin_router.message()
 async def new_announcement(message: Message, bot: Bot, album: List[Message] = list()):
-    # функция должна принятое сообщение переслать в другую группу и добавить к нему две инлайн кнопки
-    # print(message)
     if message.media_group_id != None:
-        # message.caption = message.caption.replace('+998', '')
-
-        """This handler will receive a complete album of any type."""
+        # agar xabar album bo'lsa:
         group_elements = []
         caption = ''
         for element in album:
@@ -160,8 +181,7 @@ async def new_announcement(message: Message, bot: Bot, album: List[Message] = li
         pass
     else:
         if message.photo:
-            # message.caption = message.caption.replace('+998', '')
-
+            # agar xabar photo bo'lsa:
             try:
                 got_data = str_to_dict(message.caption)
             except:
@@ -179,6 +199,7 @@ async def new_announcement(message: Message, bot: Bot, album: List[Message] = li
                     await bot.send_photo(chat_id=-1001527539668, caption=txt, reply_markup=categories_inl(categories), photo=message.photo[0].file_id)
 
         elif message.video:
+            # agar xabar video bo'lsa:            
             try:
                 got_data = str_to_dict(message.caption)
             except:
@@ -196,8 +217,7 @@ async def new_announcement(message: Message, bot: Bot, album: List[Message] = li
                     await bot.send_video(chat_id=-1001527539668, caption=txt, reply_markup=categories_inl(categories), video=message.video.file_id)
 
         else:
-            # message.text = message.text.replace('+998', '')
-
+            # agar xabar matn bo'lsa
             try:
                 got_data = str_to_dict(message.text)
             except:
@@ -215,6 +235,6 @@ async def new_announcement(message: Message, bot: Bot, album: List[Message] = li
                     await bot.send_message(-1001527539668, txt, reply_markup=categories_inl(categories), disable_web_page_preview=True)
 
 
-@admin_router.message(CommandStart())
-async def admin_start(message: Message):
-    await message.reply("Привет, Админ!")
+# @admin_router.message(CommandStart())
+# async def admin_start(message: Message):
+#     await message.reply("Привет, Админ!")

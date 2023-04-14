@@ -13,23 +13,23 @@ def get_catalog(catalog = 0, lan = 'uz_latn', c = ''):
         if catalog == 0:
             url = "http://62.209.129.42/category/"
             response = requests.request("GET", url, headers=headers, data=payload)
-            categoires = dict()
+            categories = dict()
             for i in response.json()['categories']:
                 print(i['name'], i['id'])
-                categoires[i['id']] = i['name']
+                categories[i['id']] = i['name']
 
             # return response.json()['data']
-            return categoires
+            return [categories, 0]
         else:
-            url = f'http://62.209.129.42/category/{catalog}'
+            url = f'http://62.209.129.42/catagory_name/?id={catalog}'
             response = requests.request("GET", url, headers=headers, data=payload)
-            categoires = dict()
+            categories = dict()
             for i in response.json()['categories']:
                 print(i['name'], i['id'])
-                categoires[i['id']] = i['name']
+                categories[i['id']] = i['name']
 
             # return response.json()['data'][0]['child_categories']
-            return categoires
+            return [categories, catalog]
     else:
         url = f"https://aztester.uz/api-announcement/v1/category/breadcrumb?categories={c}"
         response = requests.request("GET", url, headers=headers, data=payload)
@@ -50,4 +50,4 @@ def get_catalog(catalog = 0, lan = 'uz_latn', c = ''):
         else:
             return cat
         
-# pprint(get_catalog(818, 'uz_latn', ''))
+pprint(get_catalog(705, 'uz_latn', ''))

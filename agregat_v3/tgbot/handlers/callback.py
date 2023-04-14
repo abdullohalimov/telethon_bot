@@ -11,6 +11,14 @@ custom_router = Router()
 custom_router2 = Router()
 
 def id_list(callback: CallbackQuery):
+    """Berilgan Callbackdage message turini (text yoki photo, video) aniqlash, undagi entitiylarni olish va shu entitylardan group_id va message_id ni chiqarib barcha malumotlarni bir list da qaytaradigan funksiya
+
+    Args:
+        callback (CallbackQuery): kiruvchi Callback
+
+    Returns:
+        list: [xabar turi, entitylar, gruppa_id, va message_id] list korinishida
+    """
     if callback.message.entities != None:
         msgtype = 'text'
         entities = callback.message.entities
@@ -26,9 +34,18 @@ def id_list(callback: CallbackQuery):
 
 @custom_router.callback_query(CategoryData.filter())
 async def category_data(callback: CallbackQuery, callback_data: CategoryData):
-    print('router2')
+    """E'longa o'rnatilgan kategoriyalarni o'chiruvchi handler. Biron kategoriya o'chirish uchun bosilganda uni shu e'londan o'chirib yuboradi
+
+    Args:
+        callback (CallbackQuery): Kiruvchi Callback
+        callback_data (CategoryData): Callbackning qo'shimcha ma'lumotlari
+    """
+    # kelgan callback orqali unga tegishli xabardagi ma'lumotlarni olish
     msgtype, entities, group_id, message_id = id_list(callback)
+    
+    # message_id va group_id orqali bazadan shu e'lon ma'lumotlarini topish
     record: Person = Person.get(Person.message_id==message_id, Person.group_id==group_id)
+    
     a = callback_data.category  
     newcategory = record.category.split(',')
     newcategory.remove(a)

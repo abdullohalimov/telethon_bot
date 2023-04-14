@@ -27,13 +27,13 @@ def categories_inl(categories = None):
     
     return keyb.as_markup()
 
-def categories_keyb_inl(categories: dict):
+def categories_keyb_inl(categories: list):
     keyb = InlineKeyboardBuilder()
-    for key, value in categories.items():
-        keyb.add(InlineKeyboardButton(text=f'{value}', callback_data=CategoryKeyboard(cat=key).pack()))
+    for key, value in categories[0].items():
+        keyb.add(InlineKeyboardButton(text=f'{value}', callback_data=CategoryKeyboard(category=key, parent=categories[1]).pack()))
     
     keyb.adjust(2)
-    if categories == []:
+    if categories[0] == []:
         return False
     else:
         return keyb.as_markup()

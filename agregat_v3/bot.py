@@ -6,8 +6,6 @@ from aiogram.fsm.storage.memory import MemoryStorage
 
 from tgbot.config import load_config
 from tgbot.handlers.admin import admin_router
-from tgbot.handlers.echo import echo_router
-from tgbot.handlers.user import user_router
 from tgbot.handlers.callback import custom_router, custom_router2
 from tgbot.middlewares.album import MediaGroupMiddleware 
 from tgbot.services import broadcaster
@@ -42,8 +40,6 @@ async def main():
     for router in [
         custom_router,
         admin_router,
-        user_router,
-        echo_router,
         custom_router2
     ]:
         dp.include_router(router)

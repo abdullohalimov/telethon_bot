@@ -4,7 +4,8 @@ from aiogram.filters.callback_data import CallbackData
 
 
 class CategoryKeyboard(CallbackData, prefix='CatKeyb'):
-    cat: str
+    category: str
+    parent: str
     
 class CategoryData(CallbackData, prefix='category'):
     category: str
