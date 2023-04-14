@@ -15,7 +15,7 @@ def get_catalog(catalog = 0, lan = 'uz_latn', c = ''):
             response = requests.request("GET", url, headers=headers, data=payload)
             categories = dict()
             for i in response.json()['categories']:
-                print(i['name'], i['id'])
+                print(i['id'], i['name'])
                 categories[i['id']] = i['name']
 
             # return response.json()['data']
@@ -25,13 +25,13 @@ def get_catalog(catalog = 0, lan = 'uz_latn', c = ''):
             response = requests.request("GET", url, headers=headers, data=payload)
             categories = dict()
             for i in response.json()['categories']:
-                print(i['name'], i['id'])
+                print(i['id'], i['name'])
                 categories[i['id']] = i['name']
 
             # return response.json()['data'][0]['child_categories']
             return [categories, catalog]
     else:
-        url = f"https://aztester.uz/api-announcement/v1/category/breadcrumb?categories={c}"
+        url = f"http://62.209.129.42/catagory_name/?id={c}"
         response = requests.request("GET", url, headers=headers, data=payload)
         #pprint(response.json()['data']['categories'][0])
 
@@ -39,10 +39,10 @@ def get_catalog(catalog = 0, lan = 'uz_latn', c = ''):
         category_id2 = response.json()['data']['categories'][0]['id']
         name = f"{response.json()['data']['categories'][0]['name']}"
 
-        aa = ''
-        try:
-            aa = get_catalog(c=category_id)
-        except: pass
+        # aa = ''
+        # try:
+        #     aa = get_catalog(c=category_id)
+        # except: pass
 
         cat = f"{name}:>:{category_id2}:>:{aa}"
         if category_id == None:
@@ -50,4 +50,4 @@ def get_catalog(catalog = 0, lan = 'uz_latn', c = ''):
         else:
             return cat
         
-pprint(get_catalog(705, 'uz_latn', ''))
+# pprint(get_catalog(705, 'uz_latn', ''))
