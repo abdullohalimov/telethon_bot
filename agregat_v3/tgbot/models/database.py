@@ -2,7 +2,7 @@ from peewee import *
 
 db = SqliteDatabase(r'tgbot\models\agregat3.db')
 
-class Person(Model):
+class Product(Model):
     user_id = CharField(null=True)
     user_name = CharField(null=True)
     user_link = CharField(null=True)
@@ -19,5 +19,5 @@ class Person(Model):
     class Meta:
         database = db # This model uses the "agregat.db" database.
 
-Person.create_table(Person)
+Product.create_table(Product)
 

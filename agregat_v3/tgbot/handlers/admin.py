@@ -3,8 +3,8 @@ from aiogram import Router, Bot
 from aiogram.types import Message
 import requests
 import re
-from tgbot.keyboards.inline import categories_inl
-from tgbot.models.database import Person
+from tgbot.keyboards.inline import main_menu_keyboard
+from tgbot.models.database import Product
 from tgbot.services.langugages import get_language
 from tgbot.services.api import register_new_product_and_user
 from datetime import datetime
@@ -69,8 +69,8 @@ def caption_text(got_data, status, status2, categories='none', media_files='none
     categories_to_add = 'none' if categories == 'none' else ','.join(
         categories)
     try:
-        ex_db_record: Person = Person.get(
-            Person.message_text == got_data['message_text'])
+        ex_db_record: Product = Product.get(
+            Product.message_text == got_data['message_text'])
         ex_db_record.user_id = got_data['user_id']
         ex_db_record.user_name = got_data['user_name']
         ex_db_record.user_link = got_data['user_link']
@@ -85,7 +85,7 @@ def caption_text(got_data, status, status2, categories='none', media_files='none
         ex_db_record.status = status2
         ex_db_record.save()
     except:
-        Person.create(
+        Product.create(
             user_id=got_data['user_id'],
             user_name=got_data['user_name'],
             user_link=got_data['user_link'],
@@ -166,12 +166,12 @@ async def new_announcement(message: Message, bot: Bot, album: List[Message] = li
             if categories:
                 txt = caption_text(
                     got_data=got_data, status="joylandi ✅", status2='1', media_files=group_elements, categories=categories, is_album=True)
-                await bot.send_message(chat_id=-1001527539668, text=txt, reply_markup=categories_inl(categories), disable_web_page_preview=False)
+                await bot.send_message(chat_id=-1001527539668, text=txt, reply_markup=main_menu_keyboard(categories), disable_web_page_preview=False)
                 await register_new_product_and_user(got_data=got_data, media_files=group_elements, phone_number=phone, categories=categories, datetime=int(datetime.now().timestamp()))
             else:
                 txt = caption_text(got_data=got_data, media_files=group_elements, is_album=True,
                                    status="joylanmadi ❌", status2='0')
-                await bot.send_message(chat_id=-1001527539668, text=txt, reply_markup=categories_inl(categories), disable_web_page_preview=False)
+                await bot.send_message(chat_id=-1001527539668, text=txt, reply_markup=main_menu_keyboard(categories), disable_web_page_preview=False)
                 await register_new_product_and_user(got_data=got_data, media_files=group_elements, phone_number=phone, datetime=int(datetime.now().timestamp()), status='0')
 
         pass
@@ -189,12 +189,12 @@ async def new_announcement(message: Message, bot: Bot, album: List[Message] = li
                 if categories:
                     txt = caption_text(got_data=got_data, status="joylandi ✅", status2='1',
                                        categories=categories, media_files=message.photo[0].file_id)
-                    await bot.send_photo(chat_id=-1001527539668, caption=txt, reply_markup=categories_inl(categories), photo=message.photo[0].file_id)
+                    await bot.send_photo(chat_id=-1001527539668, caption=txt, reply_markup=main_menu_keyboard(categories), photo=message.photo[0].file_id)
                     await register_new_product_and_user(got_data=got_data, media_files=message.photo[0].file_id, phone_number=phone, categories=categories, datetime=int(datetime.now().timestamp()))
                 else:
                     txt = caption_text(got_data=got_data, status="joylanmadi ❌",
                                        status2='0', media_files=message.photo[0].file_id)
-                    await bot.send_photo(chat_id=-1001527539668, caption=txt, reply_markup=categories_inl(categories), photo=message.photo[0].file_id)
+                    await bot.send_photo(chat_id=-1001527539668, caption=txt, reply_markup=main_menu_keyboard(categories), photo=message.photo[0].file_id)
                     await register_new_product_and_user(got_data=got_data, media_files=message.photo[0].file_id, phone_number=phone, datetime=int(datetime.now().timestamp()), status='0')
 
 
@@ -211,12 +211,12 @@ async def new_announcement(message: Message, bot: Bot, album: List[Message] = li
                 if categories:
                     txt = caption_text(got_data=got_data, status="joylandi ✅", status2='1',
                                        categories=categories, media_files=message.video.file_id)
-                    await bot.send_video(chat_id=-1001527539668, caption=txt, reply_markup=categories_inl(categories), video=message.video.file_id)
+                    await bot.send_video(chat_id=-1001527539668, caption=txt, reply_markup=main_menu_keyboard(categories), video=message.video.file_id)
                     await register_new_product_and_user(got_data=got_data, media_files=message.video.file_id, phone_number=phone, categories=categories, datetime=int(datetime.now().timestamp()))
                 else:
                     txt = caption_text(got_data=got_data, status="joylanmadi ❌",
                                        status2='0', media_files=message.video.file_id)
-                    await bot.send_video(chat_id=-1001527539668, caption=txt, reply_markup=categories_inl(categories), video=message.video.file_id)
+                    await bot.send_video(chat_id=-1001527539668, caption=txt, reply_markup=main_menu_keyboard(categories), video=message.video.file_id)
                     await register_new_product_and_user(got_data=got_data, media_files=message.video.file_id, phone_number=phone, datetime=int(datetime.now().timestamp()), status='0')
 
 
@@ -233,12 +233,12 @@ async def new_announcement(message: Message, bot: Bot, album: List[Message] = li
                 if categories:
                     txt = caption_text(
                         got_data=got_data, status="joylandi ✅", status2='1', categories=categories)
-                    await bot.send_message(-1001527539668, txt, reply_markup=categories_inl(categories), disable_web_page_preview=True)
+                    await bot.send_message(-1001527539668, txt, reply_markup=main_menu_keyboard(categories), disable_web_page_preview=True)
                     await register_new_product_and_user(got_data=got_data, media_files='none', phone_number=phone, categories=categories, datetime=int(datetime.now().timestamp()))
                 else:
                     txt = caption_text(got_data=got_data,
                                        status="joylanmadi ❌", status2='0')
-                    await bot.send_message(-1001527539668, txt, reply_markup=categories_inl(categories), disable_web_page_preview=True)
+                    await bot.send_message(-1001527539668, txt, reply_markup=main_menu_keyboard(categories), disable_web_page_preview=True)
                     await register_new_product_and_user(got_data=got_data, media_files='none', phone_number=phone, datetime=int(datetime.now().timestamp()), status='0')
 
 

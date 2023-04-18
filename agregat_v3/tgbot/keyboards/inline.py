@@ -1,15 +1,15 @@
 from aiogram.types import InlineKeyboardButton
-from tgbot.keyboards.factory import CategoryData, CategoryKeyboard
+from tgbot.keyboards.factory import CategoryData, CategoryKeyboard, DeleteButtons
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from tgbot.services.catgkeyboard import get_catalog
 
 
-def categories_inl(categories = None):
+def main_menu_keyboard(categories = None):
     keyb = InlineKeyboardBuilder()
     if categories:
         if len(categories) >= 1:
             for i in categories:
-                if i == 'none':
+                if 'none' in i:
                     continue
                 a = get_catalog(c = i)
                 print(a)
@@ -23,11 +23,11 @@ def categories_inl(categories = None):
             # print(splitted)
             keyb.row(InlineKeyboardButton(text=f'❌ {a[2]} -> {a[0]}', callback_data=CategoryData(category=a[1]).pack()))
     keyb.row(InlineKeyboardButton(text="🗂 Категории", callback_data="categories"))
-    keyb.add(InlineKeyboardButton(text="🗑 Удалить", callback_data="delete"))
+    keyb.add(InlineKeyboardButton(text="🗑 Удалить", callback_data=DeleteButtons(state='alarm').pack()))
     
     return keyb.as_markup()
 
-def categories_keyb_inl(categories: list):
+def add_category_keyboard(categories: list):
     keyb = InlineKeyboardBuilder()
     for key, value in categories[0].items():
         keyb.add(InlineKeyboardButton(text=f'{value}', callback_data=CategoryKeyboard(category=key, parent=categories[1]).pack()))
@@ -38,7 +38,13 @@ def categories_keyb_inl(categories: list):
     else:
         return keyb.as_markup()
 
+def deleting_keyboard():
+    keyboard = InlineKeyboardBuilder()
+    keyboard.add(InlineKeyboardButton(text="✅ Не удалить", callback_data=DeleteButtons(state='misclick').pack()))
+    keyboard.row(InlineKeyboardButton(text="❌ УДАЛИТЬ ", callback_data=DeleteButtons(state='delete').pack()))
+    
+    return keyboard.as_markup()
 
-recover_inl = InlineKeyboardBuilder().row(InlineKeyboardButton(text="✅ Восстановить", callback_data="recover")).as_markup()
+# recover_inl = InlineKeyboardBuilder().row(InlineKeyboardButton(text="✅ Восстановить", callback_data="recover")).as_markup()
 
 

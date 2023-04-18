@@ -11,3 +11,5 @@ class CategoryData(CallbackData, prefix='category'):
     category: str
 
 
+class DeleteButtons(CallbackData, prefix='delete'):
+    state: str

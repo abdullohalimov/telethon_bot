@@ -13,7 +13,7 @@ async def register_new_product_and_user(phone_number, media_files, datetime, got
         got_data (dict): A dictionary containing user and group information.
         phone_number (str): The phone number of the user.
         categories (list): A list of categories for the product.
-        media_files (str): The name of the media file.
+        media_files (str): The name(s) of the media file(s).
         datetime (str): The date and time of the product registration.
         status (str, optional): The status of the registration. Defaults to "1".
 
@@ -46,9 +46,6 @@ async def register_new_product_and_user(phone_number, media_files, datetime, got
     async with aiohttp.ClientSession() as session:
         async with session.post(url, headers=headers, data=payload) as response:
             print(await response.text())
-
-import aiohttp
-import asyncio
 
 async def delete_product(message_id, group_id):
     url = f"http://62.209.129.42/product/?group_id={group_id}&message_id={message_id}"
