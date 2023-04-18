@@ -31,23 +31,24 @@ def get_catalog(catalog = 0, lan = 'uz_latn', c = ''):
             # return response.json()['data'][0]['child_categories']
             return [categories, catalog]
     else:
-        url = f"http://62.209.129.42/catagory_name/?id={c}"
-        response = requests.request("GET", url, headers=headers, data=payload)
+        pass
+        # url = f"http://62.209.129.42/catagory_name/?id={c}"
+        # response = requests.request("GET", url, headers=headers, data=payload)
         #pprint(response.json()['data']['categories'][0])
 
-        category_id = response.json()['data']['categories'][0]['category_id']
-        category_id2 = response.json()['data']['categories'][0]['id']
-        name = f"{response.json()['data']['categories'][0]['name']}"
+        # category_id = response.json()['data']['categories'][0]['category_id']
+        # category_id2 = response.json()['data']['categories'][0]['id']
+        # name = f"{response.json()['data']['categories'][0]['name']}"
 
         # aa = ''
         # try:
         #     aa = get_catalog(c=category_id)
         # except: pass
 
-        cat = f"{name}:>:{category_id2}:>:{aa}"
-        if category_id == None:
-            return name
-        else:
-            return cat
+        # cat = f"{name}:>:{category_id2}:>:{aa}"
+        # if category_id == None:
+        #     return name
+        # else:
+        #     return cat
         
 # pprint(get_catalog(705, 'uz_latn', ''))
