@@ -1,54 +1,50 @@
+import logging
 import requests
 import json
 from pprint import pprint
+import aiohttp
 
-def get_catalog(catalog = 0, lan = 'uz_latn', c = ''):
+async def get_catalog_async(catalog=0, lan='uz_latn', c=''):
     payload={}
     headers = {
         'content-type': 'application/json',
         'lan': f'{lan}'
     }
-
-    if c == '':
-        if catalog == 0:
-            url = "http://62.209.129.42/category/"
-            response = requests.request("GET", url, headers=headers, data=payload)
-            categories = dict()
-            for i in response.json()['categories']:
-                print(i['id'], i['name'])
-                categories[i['id']] = i['name']
-
-            # return response.json()['data']
-            return [categories, 0]
+    async with aiohttp.ClientSession(headers=headers) as session:
+        if c == '':
+            if catalog == 0:
+                url = "http://62.209.129.42/category/"
+                async with session.get(url, data=payload) as response:
+                    categories = dict()
+                    for i in (await response.json())['categories']:
+                        categories[i['id']] = i['name']
+                    return [categories, 0]
+            else:
+                url = f'http://62.209.129.42/catagory_name/?id={catalog}'
+                async with session.get(url, data=payload) as response:
+                    categories = dict()
+                    for i in (await response.json())['categories']:
+                        categories[i['id']] = i['name']
+                    return [categories, catalog]
         else:
-            url = f'http://62.209.129.42/catagory_name/?id={catalog}'
-            response = requests.request("GET", url, headers=headers, data=payload)
-            categories = dict()
-            for i in response.json()['categories']:
-                print(i['id'], i['name'])
-                categories[i['id']] = i['name']
+            url = f"http://62.209.129.42/catagory_name/?id={c}"
 
-            # return response.json()['data'][0]['child_categories']
-            return [categories, catalog]
-    else:
-        pass
-        # url = f"http://62.209.129.42/catagory_name/?id={c}"
-        # response = requests.request("GET", url, headers=headers, data=payload)
-        #pprint(response.json()['data']['categories'][0])
+            async with session.get(url, data=payload) as response:
+                category_name = (await response.json())['category_name']
+                category_id = c
+                cat = f"{category_name}:>:{category_id}"
+                logging.warning(cat)
+                return cat
+            #     pprint((await response.json())['data']['categories'][0])
+            #     category_id2 = (await response.json())['data']['categories'][0]['id']
+            #     name = f"{(await response.json())['data']['categories'][0]['name']}"
+            #     aa = ''
+            #     try:
+            #         aa = await get_catalog_async(c=category_id)
+            #     except:
+            #         pass
+            #     if category_id == None:
+            #         return name
+            #     else:
 
-        # category_id = response.json()['data']['categories'][0]['category_id']
-        # category_id2 = response.json()['data']['categories'][0]['id']
-        # name = f"{response.json()['data']['categories'][0]['name']}"
-
-        # aa = ''
-        # try:
-        #     aa = get_catalog(c=category_id)
-        # except: pass
-
-        # cat = f"{name}:>:{category_id2}:>:{aa}"
-        # if category_id == None:
-        #     return name
-        # else:
-        #     return cat
-        
 # pprint(get_catalog(705, 'uz_latn', ''))

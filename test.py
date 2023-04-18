@@ -1,6 +1,5 @@
 import requests
 import json
-from pprint import pprint
 
 def get_catalog(catalog = 0, lan = 'uz_latn', c = ''):
     payload={}
@@ -15,7 +14,6 @@ def get_catalog(catalog = 0, lan = 'uz_latn', c = ''):
             response = requests.request("GET", url, headers=headers, data=payload)
             categories = dict()
             for i in response.json()['data']:
-                print(i['name'], i['id'])
                 categories[i['id']] = i['name']
 
             return categories
@@ -30,7 +28,6 @@ def get_catalog(catalog = 0, lan = 'uz_latn', c = ''):
     else:
         url = f"https://aztester.uz/api-announcement/v1/category/breadcrumb?categories={c}"
         response = requests.request("GET", url, headers=headers, data=payload)
-        #pprint(response.json()['data']['categories'][0])
 
         category_id = response.json()['data']['categories'][0]['category_id']
         name = f"{response.json()['data']['categories'][0]['name']}"
@@ -46,4 +43,3 @@ def get_catalog(catalog = 0, lan = 'uz_latn', c = ''):
         else:
             return cat
         
-pprint(get_catalog(0, 'uz_latn', ''))

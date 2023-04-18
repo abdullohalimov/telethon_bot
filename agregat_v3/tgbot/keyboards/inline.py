@@ -1,26 +1,29 @@
 from aiogram.types import InlineKeyboardButton
 from tgbot.keyboards.factory import CategoryData, CategoryKeyboard, DeleteButtons
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from tgbot.services.catgkeyboard import get_catalog
+from tgbot.services.catgkeyboard import get_catalog_async
+import logging
 
-
-def main_menu_keyboard(categories = None):
+async def main_menu_keyboard(categories = None):
     keyb = InlineKeyboardBuilder()
     if categories:
+        logging.warning(categories)
         if len(categories) >= 1:
             for i in categories:
+                i = str(i)
                 if 'none' in i:
                     continue
-                a = get_catalog(c = i)
-                print(a)
-                a = a.split(':>:')
-                # print(splitted)
-                keyb.row(InlineKeyboardButton(text=f'❌ {a[2]} -> {a[0]}', callback_data=CategoryData(category=a[1]).pack()))
+                try:
+                    a = await get_catalog_async(c = i)
+                    a = a.split(':>:')
+                    # keyb.row(InlineKeyboardButton(text=f'❌ {a[2]} -> {a[0]}', callback_data=CategoryData(category=a[1]).pack()))
+                    keyb.row(InlineKeyboardButton(text=f'❌ {a[0]}', callback_data=CategoryData(category=a[1]).pack()))
+                except:
+                    logging.critical(i)
+                    logging.critical(type(i))
         else:
-            a = get_catalog(c = i)
-            print(a)
+            a = await get_catalog_async(c = i)
             a = a.split(':>:')
-            # print(splitted)
             keyb.row(InlineKeyboardButton(text=f'❌ {a[2]} -> {a[0]}', callback_data=CategoryData(category=a[1]).pack()))
     keyb.row(InlineKeyboardButton(text="🗂 Категории", callback_data="categories"))
     keyb.add(InlineKeyboardButton(text="🗑 Удалить", callback_data=DeleteButtons(state='alarm').pack()))

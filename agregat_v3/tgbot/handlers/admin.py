@@ -4,7 +4,7 @@ from aiogram.types import Message
 import requests
 import re
 from tgbot.keyboards.inline import main_menu_keyboard
-from tgbot.models.database import Product
+# from tgbot.models.database import Product
 from tgbot.services.langugages import get_language
 from tgbot.services.api import register_new_product_and_user
 from datetime import datetime
@@ -23,7 +23,7 @@ admin_router = Router()
 # admin_router.message.middleware(MediaGroupMiddleware)
 
 
-def remove_markdown(text: str):
+def remove_markdown_and_links(text: str):
     """Berilgan matndan markdown elementlarini kesib tashlash funksiyasi
 
     Args:
@@ -52,59 +52,39 @@ def remove_markdown(text: str):
     # Remove links
     text = re.sub(r'\[([^\]]+)\]\(([^)]+)\)', r'\1', text)
 
-    return text.strip()
+    # Define a regular expression pattern to match links
+    pattern = r"https?://\S+"
+    # Replace all links with an empty string
+    text = re.sub(pattern, "", text)
+
+    return text.strip().replace('+998', '')
 
 
-def caption_text(got_data, status, status2, categories='none', media_files='none', is_album=False):
-    """Filtr qilingan xabarni bazaga joylash va kanalga yuborish funksiyasi. Funksiya guruxga yuborilishi kerak bolgan xabarni qaytaradi.
+def caption_or_message_text(got_data, status, status2, categories='none', media_files='none', is_album=False):
+    """
+    Generate a caption or message text for a given set of data.
 
     Args:
-        got_data (_type_): Botga kelgan xabar malumotlari
-        status (_type_): joylangan yoki joylanmaganlik statusi
-        status2 (_type_): Bazadagi statusi
-        categories (str, optional): Kategoriyalar. Default 'none'.
-        media_files (str, optional): Media fayllar. Default 'none'.
-        is_album (bool, optional): Album yoki yo'qligi. Default False.
+    - got_data (dict): a dictionary containing information about the message
+    - status (str): the status of the message
+    - status2 (str): a second status of the message
+    - categories (str): a string of categories to add to the message (default: 'none')
+    - media_files (str): a string of media files to add to the message (default: 'none')
+    - is_album (bool): whether or not the message contains an album (default: False)
+
+    Returns:
+    - txt (str): a formatted string containing the message text and metadata
     """
+
     categories_to_add = 'none' if categories == 'none' else ','.join(
         categories)
-    try:
-        ex_db_record: Product = Product.get(
-            Product.message_text == got_data['message_text'])
-        ex_db_record.user_id = got_data['user_id']
-        ex_db_record.user_name = got_data['user_name']
-        ex_db_record.user_link = got_data['user_link']
-        ex_db_record.group_id = got_data['group_id']
-        ex_db_record.group_name = got_data['group_name']
-        ex_db_record.group_link = got_data['group_link']
-        ex_db_record.message_id = got_data['message_id']
-        ex_db_record.message_text = got_data['message_text']
-        ex_db_record.category = categories_to_add
-        ex_db_record.media_files = media_files
-        ex_db_record.datatime = datetime.now()
-        ex_db_record.status = status2
-        ex_db_record.save()
-    except:
-        Product.create(
-            user_id=got_data['user_id'],
-            user_name=got_data['user_name'],
-            user_link=got_data['user_link'],
-            group_id=got_data['group_id'],
-            group_name=got_data['group_name'],
-            group_link=got_data['group_link'],
-            message_id=got_data['message_id'],
-            message_text=got_data['message_text'],
-            category=categories_to_add,
-            media_files=media_files,
-            datatime=datetime.now(),
-            status=status2,
-        )
+
     txt = f'''
 ⚡️ Statusi:  #{status}
-👤 User: {markdown.link(got_data['user_name'], f"https://t.me/{got_data['user_link']}")} 
+👤 User: {markdown.link(got_data['user_name'], f"https://t.me/{got_data['user_link']}") if got_data['user_link'] != 'none' else got_data['user_name']} 
 🔹 Group: {markdown.link(got_data['group_name'], f"https://t.me/{got_data['group_link']}")} ID: {markdown.bold(got_data['group_id'])}
 👉 {markdown.link("Message Link", f"https://t.me/{got_data['group_link']}/{got_data['message_id']}")} ID: {markdown.bold(got_data['message_id'])}
-💬 Message: {remove_markdown(got_data['message_text'])}
+💬 Message: {remove_markdown_and_links(got_data['message_text'])}\n\n{'Contains Album' if is_album else ""}
 📝 Category: {categories_to_add}'''
     return txt
 
@@ -122,7 +102,7 @@ def str_to_dict(string):
     data = string.split('(delimeter)')
     dictionary['user_id'] = data[0]
     dictionary['user_name'] = data[1]
-    dictionary['user_link'] = data[2]
+    dictionary['user_link'] = data[2] if '998' not in data[2] else f"+{data[2]}"
     dictionary['group_id'] = data[3]
     dictionary['group_name'] = data[4]
     dictionary['group_link'] = data[5]
@@ -133,6 +113,24 @@ def str_to_dict(string):
 
 @admin_router.message()
 async def new_announcement(message: Message, bot: Bot, album: List[Message] = list()):
+    """
+    This function creates a new announcement message and sends it to a specified chat. 
+    It takes a Telegram message object, a bot object, and an optional album of messages as input. 
+    If the input message is an album of media, it extracts the relevant information from each element of the album and sends a media group message to the specified chat. 
+    If the input message is a single photo or video, it sends a photo or video message to the specified chat. 
+    If the input message is text, it sends a text message to the specified chat. 
+    If the input message does not meet the criteria for any of these types, it returns an error message. 
+    If the message meets the criteria for a valid announcement, it registers the announcement and the user who sent it in a database.
+
+    Args:
+    - message (telegram.Message): The Telegram message object that triggered the function call.
+    - bot (telegram.Bot): The Telegram bot object that is handling the message.
+    - album (List[telegram.Message], optional): A list of Telegram message objects that are part of the same media group as the input message. Defaults to an empty list.
+
+    Returns:
+    - None
+    """
+
     if message.media_group_id != None:
         # agar xabar album bo'lsa:
         group_elements = []
@@ -157,21 +155,21 @@ async def new_announcement(message: Message, bot: Bot, album: List[Message] = li
         try:
             got_data = str_to_dict(caption)
         except:
-            print(caption)
+            pass
         if len(got_data['message_text'].split()) > 3:
             # message2 = await bot.send_media_group(chat_id=-1001527539668, media=group_elements)
             categories = get_language(
                 got_data['message_text'], response_ru, response_cyrl, response_uz)
             phone = f"+{got_data['user_link']}" if '998' in got_data['user_link'] else ''
             if categories:
-                txt = caption_text(
+                txt = caption_or_message_text(
                     got_data=got_data, status="joylandi ✅", status2='1', media_files=group_elements, categories=categories, is_album=True)
-                await bot.send_message(chat_id=-1001527539668, text=txt, reply_markup=main_menu_keyboard(categories), disable_web_page_preview=False)
+                await bot.send_message(chat_id=-1001527539668, text=txt, reply_markup=await main_menu_keyboard(categories), disable_web_page_preview=False)
                 await register_new_product_and_user(got_data=got_data, media_files=group_elements, phone_number=phone, categories=categories, datetime=int(datetime.now().timestamp()))
             else:
-                txt = caption_text(got_data=got_data, media_files=group_elements, is_album=True,
-                                   status="joylanmadi ❌", status2='0')
-                await bot.send_message(chat_id=-1001527539668, text=txt, reply_markup=main_menu_keyboard(categories), disable_web_page_preview=False)
+                txt = caption_or_message_text(got_data=got_data, media_files=group_elements, is_album=True,
+                                              status="joylanmadi ❌", status2='0')
+                await bot.send_message(chat_id=-1001527539668, text=txt, reply_markup=await main_menu_keyboard(categories), disable_web_page_preview=False)
                 await register_new_product_and_user(got_data=got_data, media_files=group_elements, phone_number=phone, datetime=int(datetime.now().timestamp()), status='0')
 
         pass
@@ -181,66 +179,63 @@ async def new_announcement(message: Message, bot: Bot, album: List[Message] = li
             try:
                 got_data = str_to_dict(message.caption)
             except:
-                print(message)
+                pass
             if len(got_data['message_text'].split()) > 3:
                 categories = get_language(
                     got_data['message_text'], response_ru, response_cyrl, response_uz)
                 phone = f"+{got_data['user_link']}" if '998' in got_data['user_link'] else ''
                 if categories:
-                    txt = caption_text(got_data=got_data, status="joylandi ✅", status2='1',
-                                       categories=categories, media_files=message.photo[0].file_id)
-                    await bot.send_photo(chat_id=-1001527539668, caption=txt, reply_markup=main_menu_keyboard(categories), photo=message.photo[0].file_id)
+                    txt = caption_or_message_text(got_data=got_data, status="joylandi ✅", status2='1',
+                                                  categories=categories, media_files=message.photo[0].file_id)
+                    await bot.send_photo(chat_id=-1001527539668, caption=txt, reply_markup=await main_menu_keyboard(categories), photo=message.photo[0].file_id)
                     await register_new_product_and_user(got_data=got_data, media_files=message.photo[0].file_id, phone_number=phone, categories=categories, datetime=int(datetime.now().timestamp()))
                 else:
-                    txt = caption_text(got_data=got_data, status="joylanmadi ❌",
-                                       status2='0', media_files=message.photo[0].file_id)
-                    await bot.send_photo(chat_id=-1001527539668, caption=txt, reply_markup=main_menu_keyboard(categories), photo=message.photo[0].file_id)
+                    txt = caption_or_message_text(got_data=got_data, status="joylanmadi ❌",
+                                                  status2='0', media_files=message.photo[0].file_id)
+                    await bot.send_photo(chat_id=-1001527539668, caption=txt, reply_markup=await main_menu_keyboard(categories), photo=message.photo[0].file_id)
                     await register_new_product_and_user(got_data=got_data, media_files=message.photo[0].file_id, phone_number=phone, datetime=int(datetime.now().timestamp()), status='0')
-
 
         elif message.video:
             # agar xabar video bo'lsa:
             try:
                 got_data = str_to_dict(message.caption)
             except:
-                print(message)
+                pass
             if len(got_data['message_text'].split()) > 3:
                 categories = get_language(
                     got_data['message_text'], response_ru, response_cyrl, response_uz)
                 phone = f"+{got_data['user_link']}" if '998' in got_data['user_link'] else ''
                 if categories:
-                    txt = caption_text(got_data=got_data, status="joylandi ✅", status2='1',
-                                       categories=categories, media_files=message.video.file_id)
-                    await bot.send_video(chat_id=-1001527539668, caption=txt, reply_markup=main_menu_keyboard(categories), video=message.video.file_id)
+                    txt = caption_or_message_text(got_data=got_data, status="joylandi ✅", status2='1',
+                                                  categories=categories, media_files=message.video.file_id)
+                    await bot.send_video(chat_id=-1001527539668, caption=txt, reply_markup=await main_menu_keyboard(categories), video=message.video.file_id)
                     await register_new_product_and_user(got_data=got_data, media_files=message.video.file_id, phone_number=phone, categories=categories, datetime=int(datetime.now().timestamp()))
                 else:
-                    txt = caption_text(got_data=got_data, status="joylanmadi ❌",
-                                       status2='0', media_files=message.video.file_id)
-                    await bot.send_video(chat_id=-1001527539668, caption=txt, reply_markup=main_menu_keyboard(categories), video=message.video.file_id)
+                    txt = caption_or_message_text(got_data=got_data, status="joylanmadi ❌",
+                                                  status2='0', media_files=message.video.file_id)
+                    await bot.send_video(chat_id=-1001527539668, caption=txt, reply_markup=await main_menu_keyboard(categories), video=message.video.file_id)
                     await register_new_product_and_user(got_data=got_data, media_files=message.video.file_id, phone_number=phone, datetime=int(datetime.now().timestamp()), status='0')
-
 
         else:
             # agar xabar matn bo'lsa
             try:
                 got_data = str_to_dict(message.text)
             except:
-                print(message)
+                pass
             if len(got_data['message_text'].split()) > 3:
                 categories = get_language(
                     got_data['message_text'], response_ru, response_cyrl, response_uz)
                 phone = f"+{got_data['user_link']}" if '998' in got_data['user_link'] else ''
                 if categories:
-                    txt = caption_text(
+                    txt = caption_or_message_text(
                         got_data=got_data, status="joylandi ✅", status2='1', categories=categories)
-                    await bot.send_message(-1001527539668, txt, reply_markup=main_menu_keyboard(categories), disable_web_page_preview=True)
+                    await bot.send_message(-1001527539668, txt, reply_markup=await main_menu_keyboard(categories), disable_web_page_preview=True)
                     await register_new_product_and_user(got_data=got_data, media_files='none', phone_number=phone, categories=categories, datetime=int(datetime.now().timestamp()))
                 else:
-                    txt = caption_text(got_data=got_data,
-                                       status="joylanmadi ❌", status2='0')
-                    await bot.send_message(-1001527539668, txt, reply_markup=main_menu_keyboard(categories), disable_web_page_preview=True)
+                    txt = caption_or_message_text(got_data=got_data,
+                                                  status="joylanmadi ❌", status2='0')
+                    await bot.send_message(-1001527539668, txt, reply_markup=await main_menu_keyboard(categories), disable_web_page_preview=True)
                     await register_new_product_and_user(got_data=got_data, media_files='none', phone_number=phone, datetime=int(datetime.now().timestamp()), status='0')
-
 
 
 # @admin_router.message(CommandStart())

@@ -8,6 +8,7 @@ from tgbot.config import load_config
 from tgbot.handlers.admin import admin_router
 from tgbot.handlers.callback import custom_router, custom_router2
 from tgbot.middlewares.album import MediaGroupMiddleware 
+from tgbot.middlewares.throttling import ThrottlingMiddleware 
 from tgbot.services import broadcaster
 
 logger = logging.getLogger(__name__)
@@ -20,6 +21,7 @@ async def on_startup(bot: Bot, admin_ids: list[int]):
 def register_global_middlewares(dp: Dispatcher, config):
     # dp.message.outer_middleware(MediaGroupMiddleware)
     # dp.message.outer_middleware(ConfigMiddleware(config=config))
+    dp.message.outer_middleware(ThrottlingMiddleware())
     dp.message.middleware(MediaGroupMiddleware())
     # dp.callback_query.outer_middleware(ConfigMiddleware(config))
     
@@ -27,10 +29,10 @@ def register_global_middlewares(dp: Dispatcher, config):
 
 async def main():
     logging.basicConfig(
-        level=logging.INFO,
-        format=u'%(filename)s:%(lineno)d #%(levelname)-8s [%(asctime)s] - %(name)s - %(message)s',
+        level=logging.WARNING,
+        format=u'%(filename)s:%(lineno)d #%(levelname)-8s [%(asctime)s] - %(message)s',
     )
-    logger.info("Starting bot")
+    logger.critical("Starting bot")
     config = load_config(".env")
 
     storage = MemoryStorage()
