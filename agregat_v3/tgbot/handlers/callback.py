@@ -39,47 +39,31 @@ def id_list(callback: CallbackQuery):
 
 @custom_router.callback_query(CategoryData.filter())
 async def category_data(callback: CallbackQuery, callback_data: CategoryData):
-    """
-    Edit the category of a product based on the given callback data.
-
-    Parameters:
-    - callback: a telegram.CallbackQuery object representing the user's action
-    - callback_data: a CategoryData object containing the new category
-
-    Returns: None
-
-    This function first extracts some information from the given callback, such
-    as the message ID and group ID, and uses them to retrieve a product record
-    from a database. It then updates the category of the product based on the
-    new category provided in the callback data. Finally, it updates the message
-    text or caption to reflect the new category, and sends a callback answer to
-    the user.
-
-    Note that this function assumes the existence of some other functions and
-    objects, such as `id_list`, `Product`, and `main_menu_keyboard`. These are
-    not defined here and should be imported or defined elsewhere.
-    """
     # kelgan callback orqali unga tegishli xabardagi ma'lumotlarni olish
     msgtype, entities, group_id, message_id = id_list(callback)
 
     # message_id va group_id orqali bazadan shu e'lon ma'lumotlarini topish
     record: dict = await get_product(group_id=group_id, message_id=message_id)
-    newcategory = list(record['category'])
-    logging.warning(newcategory)
-    a = callback_data.category
-    logging.warning(a)
-    newcategory.remove(int(a))
-    newcategory2 = ','.join(str(x) for x in newcategory) if newcategory != [] else 'none'
-    text = callback.message.caption if msgtype == 'caption' else callback.message.text
-
-    if msgtype == 'caption':
-        await callback.message.edit_caption(caption=callback.message.caption.replace(text[text.find('📝 Category:'):], f"📝 Category: {newcategory2 if newcategory2 != 'none' else 'none'}"), caption_entities=entities, reply_markup=await main_menu_keyboard(newcategory), disable_web_page_preview=True)
+    if record['detail'] == 'Not found.':
+        await callback.message.edit_text(text='Такого товара не существует') if callback.message.text else await callback.message.edit_caption(caption='Такого товара не существует')
     else:
-        await callback.message.edit_text(text=callback.message.text.replace(text[text.find('📝 Category:'):], f"📝 Category: {newcategory2 if newcategory2 != 'none' else 'none'}"), entities=entities, reply_markup=await main_menu_keyboard(newcategory), disable_web_page_preview=True)
-    # record.category = newcategory2
+        logging.error(record)
+        newcategory = list(record['category'])
+        logging.warning(newcategory)
+        a = callback_data.category
+        logging.warning(a)
+        newcategory.remove(int(a))
+        newcategory2 = ','.join(str(x) for x in newcategory) if newcategory != [] else 'none'
+        text = callback.message.caption if msgtype == 'caption' else callback.message.text
 
-    await update_product(group_id=group_id, message_id=message_id, categories=newcategory2.split(',') if newcategory2 != 'none' else [])
-    logging.warning(record['id'])
+        if msgtype == 'caption':
+            await callback.message.edit_caption(caption=callback.message.caption.replace(text[text.find('📝 Category:'):], f"📝 Category: {newcategory2 if newcategory2 != 'none' else 'none'}"), caption_entities=entities, reply_markup=await main_menu_keyboard(newcategory), disable_web_page_preview=True)
+        else:
+            await callback.message.edit_text(text=callback.message.text.replace(text[text.find('📝 Category:'):], f"📝 Category: {newcategory2 if newcategory2 != 'none' else 'none'}"), entities=entities, reply_markup=await main_menu_keyboard(newcategory), disable_web_page_preview=True)
+        # record.category = newcategory2
+
+        await update_product(group_id=group_id, message_id=message_id, categories=newcategory2.split(',') if newcategory2 != 'none' else [])
+        logging.warning(record['id'])
 
 
 
