@@ -165,12 +165,12 @@ async def new_announcement(message: Message, bot: Bot, album: List[Message] = li
                 txt = caption_or_message_text(
                     got_data=got_data, status="joylandi ✅", status2='1', media_files=group_elements, categories=categories, is_album=True)
                 await bot.send_message(chat_id=-1001527539668, text=txt, reply_markup=await main_menu_keyboard(categories), disable_web_page_preview=False)
-                await register_new_product_and_user(got_data=got_data, media_files=group_elements, phone_number=phone, categories=categories, datetime=int(datetime.now().timestamp()))
+                await register_new_product_and_user(got_data=got_data, media_files=group_elements, phone_number=phone, categories=categories, datetime=datetime.now())
             else:
                 txt = caption_or_message_text(got_data=got_data, media_files=group_elements, is_album=True,
                                               status="joylanmadi ❌", status2='0')
                 await bot.send_message(chat_id=-1001527539668, text=txt, reply_markup=await main_menu_keyboard(categories), disable_web_page_preview=False)
-                await register_new_product_and_user(got_data=got_data, media_files=group_elements, phone_number=phone, datetime=int(datetime.now().timestamp()), status='0')
+                await register_new_product_and_user(got_data=got_data, media_files=group_elements, phone_number=phone, datetime=datetime.now(), status='0')
 
         pass
     else:
@@ -188,12 +188,12 @@ async def new_announcement(message: Message, bot: Bot, album: List[Message] = li
                     txt = caption_or_message_text(got_data=got_data, status="joylandi ✅", status2='1',
                                                   categories=categories, media_files=message.photo[0].file_id)
                     await bot.send_photo(chat_id=-1001527539668, caption=txt, reply_markup=await main_menu_keyboard(categories), photo=message.photo[0].file_id)
-                    await register_new_product_and_user(got_data=got_data, media_files=message.photo[0].file_id, phone_number=phone, categories=categories, datetime=int(datetime.now().timestamp()))
+                    await register_new_product_and_user(got_data=got_data, media_files=message.photo[0].file_id, phone_number=phone, categories=categories, datetime=datetime.now())
                 else:
                     txt = caption_or_message_text(got_data=got_data, status="joylanmadi ❌",
                                                   status2='0', media_files=message.photo[0].file_id)
                     await bot.send_photo(chat_id=-1001527539668, caption=txt, reply_markup=await main_menu_keyboard(categories), photo=message.photo[0].file_id)
-                    await register_new_product_and_user(got_data=got_data, media_files=message.photo[0].file_id, phone_number=phone, datetime=int(datetime.now().timestamp()), status='0')
+                    await register_new_product_and_user(got_data=got_data, media_files=message.photo[0].file_id, phone_number=phone, datetime=datetime.now(), status='0')
 
         elif message.video:
             # agar xabar video bo'lsa:
@@ -209,12 +209,12 @@ async def new_announcement(message: Message, bot: Bot, album: List[Message] = li
                     txt = caption_or_message_text(got_data=got_data, status="joylandi ✅", status2='1',
                                                   categories=categories, media_files=message.video.file_id)
                     await bot.send_video(chat_id=-1001527539668, caption=txt, reply_markup=await main_menu_keyboard(categories), video=message.video.file_id)
-                    await register_new_product_and_user(got_data=got_data, media_files=message.video.file_id, phone_number=phone, categories=categories, datetime=int(datetime.now().timestamp()))
+                    await register_new_product_and_user(got_data=got_data, media_files=message.video.file_id, phone_number=phone, categories=categories, datetime=datetime.now())
                 else:
                     txt = caption_or_message_text(got_data=got_data, status="joylanmadi ❌",
                                                   status2='0', media_files=message.video.file_id)
                     await bot.send_video(chat_id=-1001527539668, caption=txt, reply_markup=await main_menu_keyboard(categories), video=message.video.file_id)
-                    await register_new_product_and_user(got_data=got_data, media_files=message.video.file_id, phone_number=phone, datetime=int(datetime.now().timestamp()), status='0')
+                    await register_new_product_and_user(got_data=got_data, media_files=message.video.file_id, phone_number=phone, datetime=datetime.now(), status='0')
 
         else:
             # agar xabar matn bo'lsa
@@ -230,12 +230,12 @@ async def new_announcement(message: Message, bot: Bot, album: List[Message] = li
                     txt = caption_or_message_text(
                         got_data=got_data, status="joylandi ✅", status2='1', categories=categories)
                     await bot.send_message(-1001527539668, txt, reply_markup=await main_menu_keyboard(categories), disable_web_page_preview=True)
-                    await register_new_product_and_user(got_data=got_data, media_files='none', phone_number=phone, categories=categories, datetime=int(datetime.now().timestamp()))
+                    await register_new_product_and_user(got_data=got_data, media_files='none', phone_number=phone, categories=categories, datetime=datetime.now())
                 else:
                     txt = caption_or_message_text(got_data=got_data,
                                                   status="joylanmadi ❌", status2='0')
                     await bot.send_message(-1001527539668, txt, reply_markup=await main_menu_keyboard(categories), disable_web_page_preview=True)
-                    await register_new_product_and_user(got_data=got_data, media_files='none', phone_number=phone, datetime=int(datetime.now().timestamp()), status='0')
+                    await register_new_product_and_user(got_data=got_data, media_files='none', phone_number=phone, datetime=datetime.now(), status='0')
 
 
 # @admin_router.message(CommandStart())
