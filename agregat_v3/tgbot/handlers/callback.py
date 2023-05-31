@@ -44,11 +44,12 @@ async def category_data(callback: CallbackQuery, callback_data: CategoryData):
 
     # message_id va group_id orqali bazadan shu e'lon ma'lumotlarini topish
     record: dict = await get_product(group_id=group_id, message_id=message_id)
-    if record['detail'] == 'Not found.':
+    pprint(record)
+    if record.get('detail') == 'Not found.':
         await callback.message.edit_text(text='Такого товара не существует') if callback.message.text else await callback.message.edit_caption(caption='Такого товара не существует')
     else:
         logging.error(record)
-        newcategory = list(record['category'])
+        newcategory = list(record['categories'])
         logging.warning(newcategory)
         a = callback_data.category
         logging.warning(a)
