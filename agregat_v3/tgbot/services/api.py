@@ -17,32 +17,42 @@ async def register_new_product_and_user(
 ):    
     url = "http://62.209.129.42/product/"
     logging.critical("product added")
-    lisst = [] 
+    categorieslist = [] 
     for i in categories: 
-        lisst.append(int(i))
-    logging.critical(lisst)
-    payload = json.dumps(
-        {
-            "product_user": {
+        categorieslist.append(int(i))
+    logging.critical(categorieslist)
+    payload = {
+        'group': { 
+                    "group_id": int(got_data['group_id']),
+                    "group_link": got_data['group_link'],
+                    "group_name": got_data['group_name'] 
+                    },
+        "product_user": {
                 "user_id": int(got_data["user_id"]),
                 "user_name": f"{got_data['user_name']}",
                 "user_link": f"{got_data['user_link']}",
                 "phone_number": f"{phone_number}",
             },
-            "categories": lisst,
-            "group": {
-                "group_id": got_data["group_id"],
-                "group_name": f"{got_data['group_name']}",
-                "group_link": f"{got_data['group_link']}",
-            },
+
+
+            
+            "categories": categorieslist,
+            # "group": {
+            #     "group_id": got_data["group_id"],
+            #     "group_name": f"{got_data['group_name']}",
+            #     "group_link": f"{got_data['group_link']}",
+            # },
             "message_id": int(got_data["message_id"]),
             "message_text": f"{got_data['message_text']}",
             "media_file": f"{media_files}",
             "datetime": str(datetime),
             # "status": status,
         }
-    )
+    logging.error(payload)
+    
+    payload = json.dumps(payload)
     headers = {"Content-Type": "application/json"}
+    # payload['group'] = 
     logging.error(payload)
     async with aiohttp.ClientSession() as session:
         async with session.post(url, headers=headers, data=payload) as response:
