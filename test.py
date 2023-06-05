@@ -1,45 +1,33 @@
 import requests
 import json
 
-def get_catalog(catalog = 0, lan = 'uz_latn', c = ''):
-    payload={}
-    headers = {
-        'content-type': 'application/json',
-        'lan': f'{lan}'
-    }
+url = "http://62.209.129.42/product/"
 
-    if c == '':
-        if catalog == 0:
-            url = "https://aztester.uz/api-announcement/v1/category/tree"
-            response = requests.request("GET", url, headers=headers, data=payload)
-            categories = dict()
-            for i in response.json()['data']:
-                categories[i['id']] = i['name']
+payload = json.dumps({
+  "product_user": {
+    "user_id": "6006111111",
+    "user_name": "JobirTest",
+    "user_link": "@jobir_umirov",
+    "phone_number": "+998900426898"
+  },
+  "categories": [
+    750,
+    751
+  ],
+  "group": {
+    "group_id": -1001763109000,
+    "group_name": "Test",
+    "group_link": "https://t.me/Tes"
+  },
+  "message_id": 100,
+  "message_text": "Товук патини тозалидиган барабан резиналари сотилади сифатли махсулоти озимизикиям бор+998990017817. +998909079441",
+  "media_file": "AgACAgIAAxkBAAIRfWQew6PFEYSHKiGV0OXFYNZRghI4AAJ9yjEbZPOgSCqjC4wkKJMoAQADAgADeQADLwQ,AgACAgIAAxkBAAIRfmQew6PNSVMflD0ic7K5fpYeDXwJAAJ_yjEbZPOgSEwKA7w92P-0AQADAgADeQADLwQ",
+  "datetime": "2023-05-28T18:16:41+05:00"
+})
+headers = {
+  'Content-Type': 'application/json'
+}
 
-            return categories
-        else:
-            url = f'https://aztester.uz/api-announcement/v1/category?category_id={catalog}'
-            response = requests.request("GET", url, headers=headers, data=payload)
-            for i in response.json()['data'][0]['child_categories']:
-                categories[i['id']] = i['name']
+response = requests.request("POST", url, headers=headers, data=payload)
 
-
-            return categories
-    else:
-        url = f"https://aztester.uz/api-announcement/v1/category/breadcrumb?categories={c}"
-        response = requests.request("GET", url, headers=headers, data=payload)
-
-        category_id = response.json()['data']['categories'][0]['category_id']
-        name = f"{response.json()['data']['categories'][0]['name']}"
-
-        aa = ''
-        try:
-            aa = get_catalog(c=category_id)
-        except: pass
-
-        cat = f"{name}:>:{category_id}:>:{aa}"
-        if category_id == None:
-            return name
-        else:
-            return cat
-        
+print(response.text)
