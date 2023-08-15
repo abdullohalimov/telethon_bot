@@ -1,54 +1,56 @@
-
-# from collections import Counter 
-  
-# # counts word frequency
-# def count_words(text):                  
-#     skips = [".", ", ", ":", ";", "'", '"', "\n", '\xa0'] 
-#     for ch in skips: 
-#         text = text.replace(ch, " ") 
-#     word_counts = {} 
-#     for word in text.split(" "): 
-#         if word in word_counts: 
-#             word_counts[word]+= 1 
-#         else: 
-#             word_counts[word]= 1 
-#     return word_counts 
-  
-#     # >>>count_words(text) You can check the function 
-  
-# # counts word frequency using
-# # Counter from collections 
-# def count_words_fast(text):     
-#     text = text.lower() 
-#     skips = [".", ", ", ":", ";", "'", '"', '\n'] 
-#     for ch in skips: 
-#         text = text.replace(ch, " ") 
-#     word_counts = Counter(text.split(" ")) 
-#     return word_counts 
-  
-#     # >>>count_words_fast(text) You can check the function 
-
-# txt = """
-# [ Album ]
-# Diqqat sotiladi
-# 🦬  Buqacha yeb ichiwi zoʻr sogʻlom
-# 💵Narxi: 10 mln keliwamiz
-# 🏠Manzil: Parkent tuamni ( Tambalak )
-# Tel:📲 +998943678171
+import g4f
 
 
+# print(g4f.Provider.Ails.params) # supported args
+
+# Automatic selection of provider
+
+# streamed completion
+# response = g4f.ChatCompletion.create(model='gpt-3.5-turbo', messages=[
+#                                      {"role": "user", "content": "Hello world"}], provider=g4f.Provider.AiService)
+# print("".join(response))
+
+# response = g4f.ChatCompletion.create(model='gpt-3.5-turbo', messages=[
+#                                      {"role": "user", "content": "Hello world"}], provider=g4f.Provider.ChatgptAi)
+# print("".join(response))
+
+# response = g4f.ChatCompletion.create(model='falcon-40b', messages=[
+#                                      {"role": "user", "content": "Hello world"}], provider=g4f.Provider.H2o)
+
+# print("".join(response))
+
+response = g4f.ChatCompletion.create(model='gpt-3.5-turbo', messages=[
+{"role": "user", "content": """
+Summarize me next message shortly, determining: 
+Is this message about selling or providing service?
+Which product or products to sell or service to provide?
+Is it have a price?
+Is it have contact numbers? 
+ 
+Message may be in uzbek latin, uzbek cyrllic or in russian language
+
+If this message about selling or providing service respond me in format: 
+ name of products: <product names>, 
+ prices: <prices>, 
+ contact numbers: <contact numbers>, 
+ category: <category>, 
+ sub category: <sub category>  
+ 
+ else 'This message is not about selling or providing service'"""},
 
 
 
-# Admin @FURQAT_T
-# Bizning kanal
-# @Parkent_molbozor
-# Dostlarga ulawing
-# """
-# print(count_words(text=txt))
+{"role": "user", "content": """
+Буғдой бор бор 20 тонна рассипной 2700 сом .
+Манзил: Олтиариқ.т
+Тел: 906314887
 
-from agregat_bot.tgbot.models.database import Person
+"""}], provider=g4f.Provider.Aichat)
 
-select = Person.select()
+print("".join(response))
 
-print(select[207 -1].message_text)
+# response = g4f.ChatCompletion.create(model='falcon-40b', messages=[
+#                                      {"role": "user", "content": "Hello world"}], provider=g4f.Provider.Bing)
+
+# print("".join(response))
+

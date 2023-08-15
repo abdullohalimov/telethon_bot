@@ -13,7 +13,7 @@ from aiogram.types import Message
 # import markdown
 from aiogram.utils import markdown
 
-url = "https://aztester.uz/api-announcement/v1/category/tree"
+url = "https://agrozamin.uz/api-announcement/v1/category/tree"
 response_uz = requests.get(url, headers={'language': "uz_latn"})
 response_cyrl = requests.get(url, headers={'language': "uz_cyrl"})
 response_ru = requests.get(url, headers={'language': "ru"})

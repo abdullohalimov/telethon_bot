@@ -1,33 +1,52 @@
-import requests
+# Import requests library to send HTTP requests
+import difflib
 import json
+from pprint import pprint
 
-url = "http://62.209.129.42/product/"
+import requests
 
-payload = json.dumps({
-  "product_user": {
-    "user_id": "6006111111",
-    "user_name": "JobirTest",
-    "user_link": "@jobir_umirov",
-    "phone_number": "+998900426898"
-  },
-  "categories": [
-    750,
-    751
-  ],
-  "group": {
-    "group_id": -1001763109000,
-    "group_name": "Test",
-    "group_link": "https://t.me/Tes"
-  },
-  "message_id": 100,
-  "message_text": "Товук патини тозалидиган барабан резиналари сотилади сифатли махсулоти озимизикиям бор+998990017817. +998909079441",
-  "media_file": "AgACAgIAAxkBAAIRfWQew6PFEYSHKiGV0OXFYNZRghI4AAJ9yjEbZPOgSCqjC4wkKJMoAQADAgADeQADLwQ,AgACAgIAAxkBAAIRfmQew6PNSVMflD0ic7K5fpYeDXwJAAJ_yjEbZPOgSEwKA7w92P-0AQADAgADeQADLwQ",
-  "datetime": "2023-05-28T18:16:41+05:00"
-})
-headers = {
-  'Content-Type': 'application/json'
-}
+url = "https://agrozamin.uz/api-announcement/v1/category/tree"
 
-response = requests.request("POST", url, headers=headers, data=payload)
+response_uz = requests.get(url, headers={'language': "uz_latn"})
+response_cyrl = requests.get(url, headers={'language': "uz_cyrl"})
+response_ru = requests.get(url, headers={'language': "ru"})
 
-print(response.text)
+def get_categories(response, txtmsg, coef: float):
+    # Check if the response status code is 200 (OK)
+    if response.status_code == 200:
+        data = dict(json.loads(response.content))
+        a = data['data']
+        categories = dict()
+        parents = dict()
+        for i in a:
+            for j in i["child_categories"]:
+                cat_id = j["id"]
+                cat_name = j["name"]
+                parents[cat_id] = cat_name
+                if len(j["child_categories"]) == 0:
+                    parent_cat = i["id"]
+                    if categories.get(parent_cat) is None:
+                        categories[parent_cat] = list()
+                        categories[parent_cat].append({j['id']: j['name']})
+                    else:
+                        categories[parent_cat].append({j['id']: j['name']})
+                else:
+                    categories[cat_id] = list()
+                    for e in j["child_categories"]:
+                        categories[cat_id].append({e["id"]: e["name"]})
+        categories2 = set()
+        for key, value in categories.items():
+            for j in value:
+                str1 = txtmsg.lower().split()
+                str2 = list(j.values())[0].lower()
+                a = difflib.get_close_matches(str2, str1, 3, coef) 
+                for i in a:
+                    # categories2.add(f"{key}||{list(j.keys())[0]}||{parents[key]}||{str2}||{set(a)}")  
+                    categories2.add(f'{list(j.keys())[0]}')
+        return categories
+
+a = get_categories(response_uz, "test", 0.9)
+for key, value in a.items():
+    for j in value:
+      print(list(j.keys())[0])
+      print(list(j.values())[0])

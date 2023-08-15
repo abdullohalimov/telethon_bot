@@ -4,6 +4,7 @@ import json
 from pprint import pprint
 import aiohttp
 
+
 async def get_catalog_async(catalog=0, lan='uz_latn', c=''):
     payload={}
     headers = {
@@ -13,21 +14,21 @@ async def get_catalog_async(catalog=0, lan='uz_latn', c=''):
     async with aiohttp.ClientSession(headers=headers) as session:
         if c == '':
             if catalog == 0:
-                url = "http://62.209.129.42/category/"
+                url = "http://37.140.216.224/category/"
                 async with session.get(url, data=payload) as response:
                     categories = dict()
                     for i in (await response.json())['categories']:
                         categories[i['id']] = i['name']
                     return [categories, 0]
             else:
-                url = f'http://62.209.129.42/catagory_name/?id={catalog}'
+                url = f'http://37.140.216.224/catagory_name/?id={catalog}'
                 async with session.get(url, data=payload) as response:
                     categories = dict()
                     for i in (await response.json())['categories']:
                         categories[i['id']] = i['name']
                     return [categories, catalog]
         else:
-            url = f"http://62.209.129.42/catagory_name/?id={c}"
+            url = f"http://37.140.216.224/catagory_name/?id={c}"
 
             async with session.get(url, data=payload) as response:
                 category_name = (await response.json())['category_name']

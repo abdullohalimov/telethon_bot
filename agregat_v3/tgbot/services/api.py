@@ -58,7 +58,7 @@ def write_to_file(text, filename, encoding="utf-8"):
 
 async def register_new_product_and_user(phone_number, media_files, datetime, got_data: dict, categories=[], status=0):
 
-    url = "http://62.209.129.42/product/"
+    url = "http://37.140.216.224/product/"
     categories_list = [] 
     for i in categories: 
         categories_list.append(int(i))
@@ -95,7 +95,7 @@ async def register_new_product_and_user(phone_number, media_files, datetime, got
     pass
 
 async def delete_product(message_id, group_id):
-    url = f"http://62.209.129.42/product/?group_id={group_id}&message_id={message_id}"
+    url = f"http://37.140.216.224/product/?group_id={group_id}&message_id={message_id}"
 
     async with aiohttp.ClientSession() as session:
         async with session.delete(url) as response:
@@ -104,7 +104,7 @@ async def delete_product(message_id, group_id):
 
 
 async def get_product(group_id, message_id):
-    url = f"http://62.209.129.42/product/?group_id={group_id}&message_id={message_id}"
+    url = f"http://37.140.216.224/product/?group_id={group_id}&message_id={message_id}"
 
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
@@ -113,7 +113,7 @@ async def get_product(group_id, message_id):
 
 
 async def update_product(message_id, group_id, categories: list):
-    url = f"http://62.209.129.42/update_by_group_id/?group_id={group_id}&message_id={message_id}"
+    url = f"http://37.140.216.224/update_by_group_id/?group_id={group_id}&message_id={message_id}"
     payload = json.dumps({"categories": categories})
     headers = {"Content-Type": "application/json"}
 
