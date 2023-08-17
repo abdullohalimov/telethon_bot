@@ -1,6 +1,7 @@
 # Import requests library to send HTTP requests
 import difflib
 import json
+import logging
 def get_categories(response, txtmsg, coef: float):
     # Check if the response status code is 200 (OK)
     if response.status_code == 200:
@@ -33,6 +34,7 @@ def get_categories(response, txtmsg, coef: float):
                 for i in a:
                     # categories2.add(f"{key}||{list(j.keys())[0]}||{parents[key]}||{str2}||{set(a)}")  
                     categories2.add(f'{list(j.keys())[0]}')
+        logging.warning(categories2)
         return categories2
     else:
         # Handle the error if the response status code is not 200 (OK)

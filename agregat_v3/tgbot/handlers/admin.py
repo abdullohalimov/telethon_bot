@@ -5,7 +5,7 @@ import requests
 import re
 from tgbot.keyboards.inline import main_menu_keyboard
 # from tgbot.models.database import Product
-from tgbot.services.langugages import get_language
+from tgbot.services.langugages import get_language, get_categoriesv2
 from tgbot.services.api import register_new_product_and_user
 from datetime import datetime
 from typing import List
@@ -158,8 +158,8 @@ async def new_announcement(message: Message, bot: Bot, album: List[Message] = li
             pass
         if len(got_data['message_text'].split()) > 3:
             # message2 = await bot.send_media_group(chat_id=-1001527539668, media=group_elements)
-            categories = get_language(
-                got_data['message_text'], response_ru, response_cyrl, response_uz)
+            categories = get_categoriesv2(
+                got_data['message_text'])
             phone = f"+{got_data['user_link']}" if '998' in got_data['user_link'] else ''
             if categories:
                 txt = caption_or_message_text(
@@ -181,8 +181,8 @@ async def new_announcement(message: Message, bot: Bot, album: List[Message] = li
             except:
                 pass
             if len(got_data['message_text'].split()) > 3:
-                categories = get_language(
-                    got_data['message_text'], response_ru, response_cyrl, response_uz)
+                categories = get_categoriesv2(
+                    got_data['message_text'])
                 phone = f"+{got_data['user_link']}" if '998' in got_data['user_link'] else ''
                 if categories:
                     txt = caption_or_message_text(got_data=got_data, status="joylandi ✅", status2='1',
@@ -202,8 +202,8 @@ async def new_announcement(message: Message, bot: Bot, album: List[Message] = li
             except:
                 pass
             if len(got_data['message_text'].split()) > 3:
-                categories = get_language(
-                    got_data['message_text'], response_ru, response_cyrl, response_uz)
+                categories = get_categoriesv2(
+                    got_data['message_text'])
                 phone = f"+{got_data['user_link']}" if '998' in got_data['user_link'] else ''
                 if categories:
                     txt = caption_or_message_text(got_data=got_data, status="joylandi ✅", status2='1',
@@ -223,8 +223,8 @@ async def new_announcement(message: Message, bot: Bot, album: List[Message] = li
             except:
                 pass
             if len(got_data['message_text'].split()) > 3:
-                categories = get_language(
-                    got_data['message_text'], response_ru, response_cyrl, response_uz)
+                categories = get_categoriesv2(
+                    got_data['message_text'])
                 phone = f"+{got_data['user_link']}" if '998' in got_data['user_link'] else ''
                 if categories:
                     txt = caption_or_message_text(

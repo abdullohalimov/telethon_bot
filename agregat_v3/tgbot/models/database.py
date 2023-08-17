@@ -1,3 +1,4 @@
+import re
 from peewee import *
 
 db = SqliteDatabase(r'tgbot\models\agregat3.db')
@@ -19,5 +20,45 @@ class Product(Model):
     class Meta:
         database = db # This model uses the "agregat.db" database.
 
-Product.create_table(Product)
 
+# Connect to a Postgres database.
+pg_db = PostgresqlDatabase('keywords', user='postgres', password='123456',
+                           host='192.168.56.6', port=5432)
+
+
+class BaseModel(Model):
+    """A base model that will use our Postgresql database"""
+    class Meta:
+        database = pg_db
+
+class Keywords(BaseModel):
+    keyword = TextField()
+    category = TextField()
+
+
+
+# a = """✅ Telefon sotiladi 
+# 📱 Nomi: Redmi 9C
+# 🛠 Xolati: tiniq hamayogi radnoy
+# 🗃 Xotira: 4/64Gb
+# 🔋 Batareya 5000 MhA
+# 📦 Karobka dakumenti: yoq
+# 💰 Narxi: 850.000 ozro kami bor
+# 🔄 Obmen yoq sorameng
+# 🏠 Andijon shaxar
+# """
+
+# query = Keywords.select()
+
+# for quer in query:
+#     quer: Keywords
+
+#     # if  f"{str(quer.keyword).lower()}" in a.lower():
+#     #     print(quer.category)
+#     #     print(quer.keyword)
+#     # else:
+#     #     continue
+
+#     if re.match(f'.?{str(quer.keyword).lower()}', a.lower(), re.DOTALL):
+#         print(quer.category)
+#         print(quer.keyword)

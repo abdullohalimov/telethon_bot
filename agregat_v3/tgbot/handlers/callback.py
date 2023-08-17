@@ -168,3 +168,4 @@ async def callback_handler(callback: CallbackQuery):
     if callback.data == 'categories':
         await callback.message.edit_reply_markup(reply_markup=add_category_keyboard(await get_catalog_async(0)))
     await callback.answer()
+

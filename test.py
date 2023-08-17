@@ -2,8 +2,11 @@
 import difflib
 import json
 from pprint import pprint
+import sys
+from peewee import PostgresqlDatabase, Model, CharField, TextField
 
 import requests
+
 
 url = "https://agrozamin.uz/api-announcement/v1/category/tree"
 
@@ -45,8 +48,10 @@ def get_categories(response, txtmsg, coef: float):
                     categories2.add(f'{list(j.keys())[0]}')
         return categories
 
-a = get_categories(response_uz, "test", 0.9)
+a = get_categories(response_cyrl, "test", 0.9)
 for key, value in a.items():
     for j in value:
       print(list(j.keys())[0])
       print(list(j.values())[0])
+
+      Keywords.get_or_create(keyword=list(j.values())[0], category=list(j.keys())[0])
